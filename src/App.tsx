@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <Header></Header>
-      <main className=" mx-auto p-4 bg-white rounded-lg relative flex justify-center items-center select-none">
+      <main className="max-w-3xl mx-auto p-4 bg-white rounded-lg relative flex justify-center items-center select-none">
         {exportInputs ? (
           <ExportRecap
             exportInputs={exportInputs}
