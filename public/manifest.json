@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Exsellor",
+  "version": "2.0",
+  "action": {
+    "default_popup": "../src/popup/popup.html",
+    "default_icon": {
+      "16": "./96.png",
+      "48": "./96.png",
+      "128": "./96.png"
+    }
+  },
+  "icons": {
+    "16": "./96.png",
+    "48": "./96.png",
+    "128": "./96.png"
+  },
+  "permissions": [
+    "tabs",
+    "downloads",
+    "activeTab",
+    "storage",
+    "scripting",
+    "webRequest"
+  ],
+  "host_permissions": ["https://apifeed.sellsy.com/*"]
+}
