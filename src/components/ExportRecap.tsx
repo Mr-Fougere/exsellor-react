@@ -13,14 +13,13 @@ type ExportRecapProps = {
 const ExportRecap = ({
   exportInformations,
   setExportInputs,
-}: ExportRecapProps) => {  
+}: ExportRecapProps) => {
   const [exporting, setExporting] = useState<boolean>(false);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const csvGenerator = useRef(new CSVGenerator());
   const dateFormatter = DateFormatter;
-
   const handleCancel = () => {
     csvGenerator.current.cancelExport();
     document.title = "Exsellor";
@@ -50,21 +49,19 @@ const ExportRecap = ({
 
     csvGenerator.current
       .generateCSV(exportInformations)
-      .then((success) => {
-        if (!success) return;
+      .then(({ downloaded }) => {
+        if (!downloaded) return;
         document.title = "Export terminé";
         changeFavicon("/done.png");
         clearInterval(intervalRef.current!);
         clearInterval(timeInterval);
         setExporting(false);
-      })
+      });
 
-      intervalRef.current = setInterval(() => {
-        const currentProgress = csvGenerator.current.progress;
-        setProgress(currentProgress * 100);
-      }, 500);
-  
-     
+    intervalRef.current = setInterval(() => {
+      const currentProgress = csvGenerator.current.progress;
+      setProgress(currentProgress * 100);
+    }, 500);
 
     return () => {
       csvGenerator.current.cancelExport();
@@ -112,9 +109,7 @@ const ExportRecap = ({
 
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
         Temps passé
-        <span className="font-bold">
-          {formattedElapsedTime}
-        </span>
+        <span className="font-bold">{formattedElapsedTime}</span>
       </div>
 
       <ProgressBar progress={progress}></ProgressBar>

@@ -5,16 +5,19 @@ import {
   FormattedRow,
   SellsyAddress,
 } from "../interfaces/export.interface";
+import ExportArchivist from "./ExportArchivist";
 import SellsyClient from "./sellsy";
 
 class CSVGenerator {
   private sellsy: SellsyClient;
+  private exportArchivist: ExportArchivist;
   private isCancelled: boolean = false;
   private docParsedCount: number = 0;
   private docToParseCount: number = 0;
 
   constructor() {
     this.sellsy = new SellsyClient();
+    this.exportArchivist = new ExportArchivist();
   }
 
   public cancelExport() {
@@ -114,12 +117,12 @@ class CSVGenerator {
   }
 
   public get progress(): number {
-    return  this.docParsedCount / this.docToParseCount;
+    return this.docParsedCount / this.docToParseCount;
   }
 
   public async generateCSV(
     exportInformations: ExportInformations
-  ): Promise<boolean> {
+  ): Promise<{ archived: boolean; downloaded: boolean }> {
     this.docToParseCount = exportInformations.docCount || 1;
 
     const documentRowParsed: FormattedRow[][] = [];
@@ -143,43 +146,40 @@ class CSVGenerator {
       );
     }
 
-    if (this.isCancelled) {
-      console.log("CSV generation was stopped before completion.");
-      return false;
-    }
-
-    const rows: FormattedRow[] = [
-      [
-        "Shop",
-        "day",
-        "order_name",
-        "billing_country",
-        "customer_name",
-        "shipping_country",
-        "variant_sku",
-        "orders",
-        "gross_sales",
-        "discounts",
-        "returns",
-        "net_sales",
-        "shipping",
-        "taxes",
-        "total_sales",
-        "Net Quantity",
-      ],
-    ];
-
     if (!this.isCancelled) {
+      const rows: FormattedRow[] = [
+        [
+          "Shop",
+          "day",
+          "order_name",
+          "billing_country",
+          "customer_name",
+          "shipping_country",
+          "variant_sku",
+          "orders",
+          "gross_sales",
+          "discounts",
+          "returns",
+          "net_sales",
+          "shipping",
+          "taxes",
+          "total_sales",
+          "Net Quantity",
+        ],
+      ];
+
       rows.push(...documentRowParsed.flat(1));
       const mappedRows = rows.map((row) => row.join(",")).join("\n");
-
-      this.downloadCSV(mappedRows, `sellsy-${exportInformations.docType}-${exportInformations.periodStartInputDate}-${exportInformations.periodEndInputDate}.csv`);
+      const exportName = `sellsy_${exportInformations.docType}_${exportInformations.periodStartInputDate}_${exportInformations.periodEndInputDate}.csv`;
+      const archived = this.exportArchivist.archive(mappedRows, exportName);
+      const downloaded = this.downloadCSV(mappedRows, exportName);
+      return { archived, downloaded };
     }
 
-    return true;
+    return { archived: false, downloaded: false };
   }
 
-  private downloadCSV(content: string, filename: string): void {
+  private downloadCSV(content: string, filename: string): boolean {
     const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
@@ -188,6 +188,8 @@ class CSVGenerator {
       filename: filename,
       saveAs: false,
     });
+
+    return true;
   }
 }
 
