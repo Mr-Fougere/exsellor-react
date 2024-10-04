@@ -58,7 +58,7 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
         .getDocumentsInfos(data)
         .then((infos) => {
           const docCount = infos.nbtotal;
-          resolve({ docCount, estimatedTime: docCount * 3 });
+          resolve({ docCount, estimatedTime: docCount * 2 });
         })
         .catch((error) => {
           reject(error);

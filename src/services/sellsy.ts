@@ -1,21 +1,9 @@
 import Sellsy from 'node-sellsy';
 import { DocType, ExportInputs } from '../interfaces/export.interface';
-
-interface DocumentResult {
-  status: string;
-  response: {
-    infos: any; // Remplacez `any` par le type approprié pour les infos
-    result: any; // Remplacez `any` par le type approprié pour les documents
-  };
-}
-
-interface PeriodDates {
-  start: Date;
-  end: Date;
-}
+import { DocumentResult, DocumentsOutput, PeriodDates } from '../interfaces/sellsy.interface';
 
 class SellsyClient {
-  private sellsy: Sellsy;
+  private sellsy: typeof Sellsy;
 
   constructor() {
     this.sellsy = new Sellsy({
@@ -33,10 +21,10 @@ class SellsyClient {
     return infos;
   }
   
-  async getDocuments(docType: DocType, pagenum: number = 1, nbperpage: number = 1, periodDates: PeriodDates): Promise<{ infos: any; documents: any }> { 
+  async getDocuments(docType: DocType, pagenum: number = 1, nbperpage: number = 1, periodDates: PeriodDates): Promise<DocumentsOutput> { 
     const convertedDates = {
       start: periodDates.start.getTime() / 1000,
-      end: periodDates.start.getTime() / 1000,
+      end: periodDates.end.getTime() / 1000,
     };
 
     const result: DocumentResult = await this.sellsy.api({
@@ -54,11 +42,7 @@ class SellsyClient {
       },
     });
 
-    if (result.status !== 'success') {
-      throw new Error(result.response.error);
-    }
-
-    return { infos: result.response.infos, documents: result.response.result };
+    return { infos: result.response.infos, documents: result.response.result, status: result.response.status };
   }
 
   async getDocument(type: string, id: string): Promise<any> { 
@@ -67,7 +51,7 @@ class SellsyClient {
       return document;
     } catch (error) {
       console.error('Error retrieving document:', error);
-      throw new Error(error);
+      throw new Error();
     }
   }
 }

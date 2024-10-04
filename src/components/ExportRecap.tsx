@@ -15,12 +15,15 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
+  console.log(exportInputs);
+
   const csvGenerator = new CSVGenerator();
   const dateFormatter = DateFormatter;
 
   const handleCancel = () => {
     setCurrentExport(undefined);
     setExportInputs(null);
+    document.title = "Exsellor"
     changeFavicon("/favicon.ico");
   };
 
