@@ -40,7 +40,6 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
     setEstimating(true);
     await estimateExport(formattedData)
       .then((estimation) => {
-        console.log(estimation);
         formattedData.estimatedTime = estimation.estimatedTime;
         formattedData.docCount = estimation.docCount;
         setExportInputs(formattedData);
