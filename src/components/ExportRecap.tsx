@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DocType, ExportInputs } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import CSVGenerator from "../services/CSVGenerator";
@@ -11,8 +11,15 @@ type ExportRecapProps = {
 
 const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
   const handleCancel = () => {
+    setCurrentExport(undefined);
     setExportInputs(null);
   };
+
+  const [currentExport, setCurrentExport] = useState<Promise<void>>();
+  const [exporting, setExporting] = useState<boolean>(false);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number | null>(null);
+
   const csvGenerator = new CSVGenerator();
   const dateFormatter = DateFormatter;
 
@@ -24,11 +31,28 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
     });
   };
 
+  currentExport
+    ?.then(() => {
+      document.title = "Export terminé";
+      changeFavicon("/done.png");
+      if (startTime) {
+        const endTime = new Date();
+        const timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
+        const diffSeconds = Math.floor(timeDiff / 1000); // En secondes
+
+        setElapsedTime(diffSeconds);
+      }
+    })
+    .finally(() => {
+      setExporting(false);
+    });
 
   useEffect(() => {
-    document.title = "Export en cours ..."
-    changeFavicon("/progress.png")
-    csvGenerator.generateCSV(exportInputs)
+    document.title = "Export en cours ...";
+    changeFavicon("/progress.png");
+    setExporting(true);
+    setStartTime(new Date()); // Enregistrer le moment de début
+    setCurrentExport(csvGenerator.generateCSV(exportInputs));
   }, []);
 
   return (
@@ -67,19 +91,39 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
           {new Date().toLocaleTimeString("fr-FR")}
         </span>
       </div>
-      <div className="flex flex-row justify-between items-center">
-        <div className="text-center ml-4">
-          <i className="fa-solid fa-spinner fa-spin mr-1"></i>
-          Export en cours
+
+      {elapsedTime && (
+        <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
+          Durée export
+          <span className="font-bold">{dateFormatter.formatDisplayedTime(elapsedTime)}</span>
         </div>
-        <button
-          onClick={handleCancel}
-          type="button"
-          className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
-          Annuler l'export
-        </button>
-      </div>
+      )}
+      {exporting ? (
+        <div className="flex flex-row justify-between items-center">
+          <div className="text-center ml-4">
+            <i className="fa-solid fa-spinner fa-spin mr-1"></i>
+            Export en cours
+          </div>
+          <button
+            onClick={handleCancel}
+            type="button"
+            className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Annuler l'export
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-row justify-between items-center">
+          <div className="text-center ml-4">Export terminé</div>
+          <button
+            onClick={handleCancel}
+            type="button"
+            className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Faire un autre export
+          </button>
+        </div>
+      )}
     </div>
   );
 };
