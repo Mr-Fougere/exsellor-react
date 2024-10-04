@@ -2,11 +2,13 @@ import { useForm } from "react-hook-form";
 import {
   DocType,
   ExportEstimation,
+  ExportInformations,
   ExportInputs,
 } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import { useState } from "react";
 import SellsyClient from "../services/sellsy";
+import MonthSelector from "./MonthSelector";
 
 type ExportFormProps = {
   setExportInputs: Function;
@@ -16,6 +18,8 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ExportInputs>();
 
@@ -24,23 +28,52 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
   const [estimating, setEstimating] = useState<boolean>(false);
 
   const dateFormatter = DateFormatter;
-
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
   const formattedFirstDay = dateFormatter.formatInputDate(firstDayOfMonth);
   const formattedToday = dateFormatter.formatInputDate(today);
 
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = new Date(event.target.value);
+    const endOfMonth = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() + 1,
+      0
+    );
+    const firstOfMonth = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      1
+    );
+
+    if (
+      selectedDate.getDate() === endOfMonth.getDate() &&
+      event.target.id == "end-date"
+    ) {
+      setValue(
+        "periodStartInputDate",
+        dateFormatter.formatInputDate(firstOfMonth)
+      );
+    } else if (
+      selectedDate.getDate() === 1 &&
+      event.target.id == "start-date"
+    ) {
+      setValue("periodEndInputDate", dateFormatter.formatInputDate(endOfMonth));
+    }
+  };
+
   const onSubmit = async (data: ExportInputs) => {
-    const formattedData: ExportInputs = {
+    const formattedData: ExportInformations = {
       ...data,
-      periodStartDate: new Date(data.periodStartDate),
-      periodEndDate: new Date(data.periodEndDate),
+      periodStartDate: new Date(data.periodStartInputDate),
+      periodEndDate: new Date(data.periodEndInputDate),
     };
+
+    console.log(formattedData);
 
     setEstimating(true);
     await estimateExport(formattedData)
       .then((estimation) => {
-        console.log(estimation);
         formattedData.estimatedTime = estimation.estimatedTime;
         formattedData.docCount = estimation.docCount;
         setExportInputs(formattedData);
@@ -52,18 +85,28 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
       });
   };
 
-  const estimateExport = (data: ExportInputs): Promise<ExportEstimation> => {
+  const estimateExport = (
+    data: ExportInformations
+  ): Promise<ExportEstimation> => {
     return new Promise((resolve, reject) => {
       sellsy
         .getDocumentsInfos(data)
         .then((infos) => {
           const docCount = infos.nbtotal;
-          resolve({ docCount, estimatedTime: docCount * 3 });
+          resolve({ docCount, estimatedTime: docCount * 2 });
         })
         .catch((error) => {
           reject(error);
         });
     });
+  };
+
+  const periodStartInputDate = watch("periodStartInputDate", formattedFirstDay);
+  const periodEndInputDate = watch("periodEndInputDate", formattedToday);
+
+  const setDates = ({ start, end }: { start: Date; end: Date }) => {
+    setValue("periodStartInputDate", dateFormatter.formatInputDate(start));
+    setValue("periodEndInputDate", dateFormatter.formatInputDate(end));
   };
 
   return (
@@ -102,12 +145,15 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
           defaultValue={formattedFirstDay}
           type="date"
           id="start-date"
-          {...register("periodStartDate", { required: "Ce champ est requis" })}
+          {...register("periodStartInputDate", {
+            required: "Ce champ est requis",
+            onChange: handleDateChange,
+          })}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
-        {errors.periodStartDate && (
+        {errors.periodStartInputDate && (
           <span className="text-red-500 text-sm">
-            {errors.periodStartDate.message}
+            {errors.periodStartInputDate.message}
           </span>
         )}
       </div>
@@ -124,15 +170,26 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
           defaultValue={formattedToday} //
           type="date"
           id="end-date"
-          {...register("periodEndDate", { required: "Ce champ est requis" })}
+          {...register("periodEndInputDate", {
+            required: "Ce champ est requis",
+            onChange: handleDateChange,
+          })}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
-        {errors.periodEndDate && (
+        {errors.periodEndInputDate && (
           <span className="text-red-500 text-sm">
-            {errors.periodEndDate.message}
+            {errors.periodEndInputDate.message}
           </span>
         )}
       </div>
+
+      <MonthSelector
+        setDates={setDates}
+        selectedDates={{
+          start: new Date(periodStartInputDate),
+          end: new Date(periodEndInputDate),
+        }}
+      />
 
       <button
         type="submit"

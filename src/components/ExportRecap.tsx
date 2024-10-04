@@ -1,60 +1,71 @@
-import { useEffect, useState } from "react";
-import { DocType, ExportInputs } from "../interfaces/export.interface";
+import { useEffect, useRef, useState } from "react";
+import { DocType, ExportInformations } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import CSVGenerator from "../services/CSVGenerator";
 import changeFavicon from "../libs/Helpers";
 
 type ExportRecapProps = {
-  exportInputs: ExportInputs;
+  exportInformations: ExportInformations;
   setExportInputs: Function;
 };
 
-const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
-  const [currentExport, setCurrentExport] = useState<Promise<void>>();
+const ExportRecap = ({
+  exportInformations,
+  setExportInputs,
+}: ExportRecapProps) => {
   const [exporting, setExporting] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
-  const csvGenerator = new CSVGenerator();
+  const csvGenerator = useRef(new CSVGenerator());
   const dateFormatter = DateFormatter;
 
   const handleCancel = () => {
-    setCurrentExport(undefined);
-    setExportInputs(null);
+    csvGenerator.current.cancelExport();
+    document.title = "Exsellor";
     changeFavicon("/favicon.ico");
+    setExportInputs(null);
   };
 
   const docType = () => {
     return Object.entries(DocType).map(([key, value]) => {
-      if (key === exportInputs.docType) {
+      if (key === exportInformations.docType) {
         return value;
       }
     });
   };
 
-  currentExport
-    ?.then(() => {
-      document.title = "Export terminé";
-      changeFavicon("/done.png");
-      if (startTime) {
-        const endTime = new Date();
-        const timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
-        const diffSeconds = Math.floor(timeDiff / 1000); // En secondes
-
-        setElapsedTime(diffSeconds);
-      }
-    })
-    .finally(() => {
-      setExporting(false);
-    });
-
   useEffect(() => {
+    if (!exportInformations) return;
+
     document.title = "Export en cours ...";
     changeFavicon("/progress.png");
     setExporting(true);
-    setStartTime(new Date()); // Enregistrer le moment de début
-    setCurrentExport(csvGenerator.generateCSV(exportInputs));
-  }, []);
+    setStartTime(new Date());
+
+    csvGenerator.current
+      .generateCSV(exportInformations)
+      .then((success) => {
+        if (!success) return;
+        document.title = "Export terminé";
+        changeFavicon("/done.png");
+
+        if (startTime) {
+          const endTime = new Date();
+          const timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
+          const diffSeconds = Math.floor(timeDiff / 1000); // In seconds
+          setElapsedTime(diffSeconds);
+        }
+      })
+      .finally(() => {
+        setExporting(false);
+      });
+
+    // Cleanup function to handle component unmount or cancellation
+    return () => {
+      csvGenerator.current.cancelExport(); // Ensure export stops if the component unmounts or user cancels
+    };
+  }, [exportInformations]); // Run effect when exportInputs change
 
   return (
     <div className="recap-container space-y-2 w-full">
@@ -70,13 +81,13 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
         Date de début
         <span className="font-bold">
-          {dateFormatter.formatDispayedDate(exportInputs.periodStartDate)}
+          {dateFormatter.formatDispayedDate(exportInformations.periodStartDate)}
         </span>
       </div>
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
         Date de fin
         <span className="font-bold">
-          {dateFormatter.formatDispayedDate(exportInputs.periodEndDate)}
+          {dateFormatter.formatDispayedDate(exportInformations.periodEndDate)}
         </span>
       </div>
 
@@ -91,7 +102,9 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
         <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
           Temps estimé
           <span className="font-bold">
-            {dateFormatter.formatDisplayedTime(exportInputs.estimatedTime || 0)}
+            {dateFormatter.formatDisplayedTime(
+              exportInformations.estimatedTime || 0
+            )}
           </span>
         </div>
       )}
