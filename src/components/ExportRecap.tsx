@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DocType, ExportInformations } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import CSVGenerator from "../services/CSVGenerator";
 import changeFavicon from "../libs/Helpers";
+import ProgressBar from "./ProgressBar";
 
 type ExportRecapProps = {
   exportInformations: ExportInformations;
@@ -12,11 +13,11 @@ type ExportRecapProps = {
 const ExportRecap = ({
   exportInformations,
   setExportInputs,
-}: ExportRecapProps) => {
+}: ExportRecapProps) => {  
   const [exporting, setExporting] = useState<boolean>(false);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<number | null>(null);
-
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [progress, setProgress] = useState<number>(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const csvGenerator = useRef(new CSVGenerator());
   const dateFormatter = DateFormatter;
 
@@ -25,6 +26,7 @@ const ExportRecap = ({
     document.title = "Exsellor";
     changeFavicon("/favicon.ico");
     setExportInputs(null);
+    clearInterval(intervalRef.current!);
   };
 
   const docType = () => {
@@ -41,7 +43,6 @@ const ExportRecap = ({
     document.title = "Export en cours ...";
     changeFavicon("/progress.png");
     setExporting(true);
-    setStartTime(new Date());
 
     csvGenerator.current
       .generateCSV(exportInformations)
@@ -49,23 +50,31 @@ const ExportRecap = ({
         if (!success) return;
         document.title = "Export terminé";
         changeFavicon("/done.png");
-
-        if (startTime) {
-          const endTime = new Date();
-          const timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
-          const diffSeconds = Math.floor(timeDiff / 1000); // In seconds
-          setElapsedTime(diffSeconds);
-        }
+        clearInterval(intervalRef.current!);
       })
       .finally(() => {
         setExporting(false);
       });
 
-    // Cleanup function to handle component unmount or cancellation
+      intervalRef.current = setInterval(() => {
+        const currentProgress = csvGenerator.current.progress;
+        setProgress(currentProgress * 100);
+      }, 500);
+  
+      const timeInterval = setInterval(() => {
+        setElapsedTime((prevTime) => prevTime + 1);
+      }, 1000);
+
     return () => {
-      csvGenerator.current.cancelExport(); // Ensure export stops if the component unmounts or user cancels
+      csvGenerator.current.cancelExport();
+      clearInterval(intervalRef.current!);
+      clearInterval(timeInterval);
     };
-  }, [exportInformations]); // Run effect when exportInputs change
+  }, [exportInformations]);
+
+  const formattedElapsedTime = useMemo(() => {
+    return dateFormatter.formatDisplayedTime(elapsedTime);
+  }, [elapsedTime]);
 
   return (
     <div className="recap-container space-y-2 w-full">
@@ -91,30 +100,23 @@ const ExportRecap = ({
         </span>
       </div>
 
-      {elapsedTime ? (
-        <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-          Durée export
-          <span className="font-bold">
-            {dateFormatter.formatDisplayedTime(elapsedTime)}
-          </span>
-        </div>
-      ) : (
-        <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-          Temps estimé
-          <span className="font-bold">
-            {dateFormatter.formatDisplayedTime(
-              exportInformations.estimatedTime || 0
-            )}
-          </span>
-        </div>
-      )}
-
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Début export{" "}
+        Temps estimé
         <span className="font-bold">
-          {new Date().toLocaleTimeString("fr-FR")}
+          {dateFormatter.formatDisplayedTime(
+            exportInformations.estimatedTime || 0
+          )}
         </span>
       </div>
+
+      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
+        Temps passé
+        <span className="font-bold">
+          {formattedElapsedTime}
+        </span>
+      </div>
+
+      <ProgressBar progress={progress}></ProgressBar>
 
       {exporting ? (
         <div className="flex flex-row justify-between items-center">

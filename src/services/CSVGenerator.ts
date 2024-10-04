@@ -2,7 +2,6 @@ import {
   DocType,
   Document,
   ExportInformations,
-  ExportInputs,
   FormattedRow,
   SellsyAddress,
 } from "../interfaces/export.interface";
@@ -11,6 +10,8 @@ import SellsyClient from "./sellsy";
 class CSVGenerator {
   private sellsy: SellsyClient;
   private isCancelled: boolean = false;
+  private docParsedCount: number = 0;
+  private docToParseCount: number = 0;
 
   constructor() {
     this.sellsy = new SellsyClient();
@@ -106,16 +107,22 @@ class CSVGenerator {
 
       const doc = await this.sellsy.getDocument(docType, docId);
       parsedRows.push(...this.parseDocumentRows(doc));
+      this.docParsedCount++;
     }
 
     return parsedRows;
   }
 
+  public get progress(): number {
+    return  this.docParsedCount / this.docToParseCount;
+  }
+
   public async generateCSV(
     exportInformations: ExportInformations
   ): Promise<boolean> {
-    const documentRowParsed: FormattedRow[][] = [];
+    this.docToParseCount = exportInformations.docCount || 1;
 
+    const documentRowParsed: FormattedRow[][] = [];
     const nbPages = Math.ceil(exportInformations.docCount || 1 / 100);
 
     for (let pageIndex = 1; pageIndex <= nbPages; pageIndex++) {
@@ -166,7 +173,7 @@ class CSVGenerator {
       rows.push(...documentRowParsed.flat(1));
       const mappedRows = rows.map((row) => row.join(",")).join("\n");
 
-      this.downloadCSV(mappedRows, `sellsy-${exportInformations.docType}.csv`);
+      this.downloadCSV(mappedRows, `sellsy-${exportInformations.docType}-${exportInformations.periodStartInputDate}-${exportInformations.periodEndInputDate}.csv`);
     }
 
     return true;

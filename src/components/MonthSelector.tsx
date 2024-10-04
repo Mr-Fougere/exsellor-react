@@ -65,13 +65,13 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 px-2">
       {Object.entries(months).map(([monthIndex, monthName]) => (
         <button
           type="button"
           key={monthIndex}
           onClick={() => setDates(getFirstAndLastDays(Number(monthIndex)))}
-          className={`rounded px-4 py-2 ${
+          className={`rounded px-4 py-2 hover:bg-sky-200 border border-gray-300 rounded ${
             isSelected(Number(monthIndex))
               ? "bg-cyan-600 text-white"
               : "bg-sky-50 text-black"

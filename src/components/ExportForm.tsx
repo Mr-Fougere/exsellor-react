@@ -9,6 +9,8 @@ import DateFormatter from "../libs/DateFormatter";
 import { useState } from "react";
 import SellsyClient from "../services/sellsy";
 import MonthSelector from "./MonthSelector";
+import DocTypeRadioGroup from "./DocTypeRadioGroup";
+import ProgressBar from "./ProgressBar";
 
 type ExportFormProps = {
   setExportInputs: Function;
@@ -114,86 +116,78 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
       <div>
         <label
           htmlFor="choix"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-bold text-gray-700"
         >
           Choisissez un type de document
         </label>
-        <select
-          id="choix"
-          {...register("docType", { required: "Ce champ est requis" })}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        >
-          {Object.entries(DocType).map(([key, value]) => (
-            <option key={key} value={key}>
-              {value}
-            </option>
-          ))}
-        </select>
-        {errors.docType && (
-          <span className="text-red-500 text-sm">{errors.docType.message}</span>
-        )}
+        <DocTypeRadioGroup
+          name="docType"
+          id="doc-type"
+          requiredMessage="required"
+          register={register}
+          watch={watch}
+        ></DocTypeRadioGroup>
       </div>
 
       <div>
         <label
-          htmlFor="start-date"
-          className="block text-sm font-medium text-gray-700"
+          htmlFor="choix"
+          className="block text-sm font-bold text-gray-700"
         >
-          Sélectionnez une date de début
+          Choisissez une période
         </label>
-        <input
-          defaultValue={formattedFirstDay}
-          type="date"
-          id="start-date"
-          {...register("periodStartInputDate", {
-            required: "Ce champ est requis",
-            onChange: handleDateChange,
-          })}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        <MonthSelector
+          setDates={setDates}
+          selectedDates={{
+            start: new Date(periodStartInputDate),
+            end: new Date(periodEndInputDate),
+          }}
         />
-        {errors.periodStartInputDate && (
-          <span className="text-red-500 text-sm">
-            {errors.periodStartInputDate.message}
-          </span>
-        )}
       </div>
 
-      <div>
-        <label
-          htmlFor="end-date"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Sélectionnez une date de fin
-        </label>
-        <input
-          max={formattedToday}
-          defaultValue={formattedToday} //
-          type="date"
-          id="end-date"
-          {...register("periodEndInputDate", {
-            required: "Ce champ est requis",
-            onChange: handleDateChange,
-          })}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
-        {errors.periodEndInputDate && (
-          <span className="text-red-500 text-sm">
-            {errors.periodEndInputDate.message}
-          </span>
-        )}
+      <div className="flex flex-row space-x-2 px-4">
+        <div className="flex-1">
+          <label
+            htmlFor="start-date"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Date de début
+          </label>
+          <input
+            defaultValue={formattedFirstDay}
+            type="date"
+            id="start-date"
+            {...register("periodStartInputDate", {
+              required: "Ce champ est requis",
+              onChange: handleDateChange,
+            })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+        <div className="flex-1">
+          <label
+            htmlFor="end-date"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Date de fin
+          </label>
+          <input
+            max={formattedToday}
+            defaultValue={formattedToday}
+            type="date"
+            id="end-date"
+            {...register("periodEndInputDate", {
+              required: "Ce champ est requis",
+              onChange: handleDateChange,
+            })}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
       </div>
-
-      <MonthSelector
-        setDates={setDates}
-        selectedDates={{
-          start: new Date(periodStartInputDate),
-          end: new Date(periodEndInputDate),
-        }}
-      />
 
       <button
         type="submit"
-        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4 "
       >
         {estimating && <i className="fa-solid fa-spinner fa-spin mr-2"></i>}
         <span>{estimating ? "Lancement de l'export" : "Lancer l'export"}</span>
