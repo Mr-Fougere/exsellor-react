@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { DocType, ExportInputs } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import CSVGenerator from "../services/CSVGenerator";
+import changeFavicon from "../libs/Helpers";
 
 type ExportRecapProps = {
   exportInputs: ExportInputs;
@@ -25,6 +26,8 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
 
 
   useEffect(() => {
+    document.title = "Export en cours ..."
+    changeFavicon("/progress.png")
     csvGenerator.generateCSV(exportInputs)
   }, []);
 
