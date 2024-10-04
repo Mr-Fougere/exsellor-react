@@ -71,8 +71,6 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
       periodEndDate: new Date(data.periodEndInputDate),
     };
 
-    console.log(formattedData);
-
     setEstimating(true);
     await estimateExport(formattedData)
       .then((estimation) => {

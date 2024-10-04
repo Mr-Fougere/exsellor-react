@@ -44,6 +44,10 @@ const ExportRecap = ({
     changeFavicon("/progress.png");
     setExporting(true);
 
+    const timeInterval = setInterval(() => {
+      setElapsedTime((prevTime) => prevTime + 1);
+    }, 1000);
+
     csvGenerator.current
       .generateCSV(exportInformations)
       .then((success) => {
@@ -51,19 +55,16 @@ const ExportRecap = ({
         document.title = "Export terminé";
         changeFavicon("/done.png");
         clearInterval(intervalRef.current!);
-      })
-      .finally(() => {
+        clearInterval(timeInterval);
         setExporting(false);
-      });
+      })
 
       intervalRef.current = setInterval(() => {
         const currentProgress = csvGenerator.current.progress;
         setProgress(currentProgress * 100);
       }, 500);
   
-      const timeInterval = setInterval(() => {
-        setElapsedTime((prevTime) => prevTime + 1);
-      }, 1000);
+     
 
     return () => {
       csvGenerator.current.cancelExport();
