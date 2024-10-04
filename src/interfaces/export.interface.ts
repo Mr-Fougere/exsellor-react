@@ -1,7 +1,9 @@
 export interface ExportInputs {
   docType: DocType;
-  periodStartDate: Date;
-  periodEndDate: Date;
+  periodStartDate?: Date;
+  periodEndDate?: Date;
+  periodStartInputDate: string;
+  periodEndInputDate: string;
   estimatedTime?: number; // in seconds
   exportStartDate?: Date;
   docCount?: number;
