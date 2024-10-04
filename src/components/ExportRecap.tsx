@@ -10,11 +10,6 @@ type ExportRecapProps = {
 };
 
 const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
-  const handleCancel = () => {
-    setCurrentExport(undefined);
-    setExportInputs(null);
-  };
-
   const [currentExport, setCurrentExport] = useState<Promise<void>>();
   const [exporting, setExporting] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -22,6 +17,12 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
 
   const csvGenerator = new CSVGenerator();
   const dateFormatter = DateFormatter;
+
+  const handleCancel = () => {
+    setCurrentExport(undefined);
+    setExportInputs(null);
+    changeFavicon("/favicon.ico");
+  };
 
   const docType = () => {
     return Object.entries(DocType).map(([key, value]) => {
@@ -78,12 +79,22 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
           {dateFormatter.formatDispayedDate(exportInputs.periodEndDate)}
         </span>
       </div>
-      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Temps estimé
-        <span className="font-bold">
-          {dateFormatter.formatDisplayedTime(exportInputs.estimatedTime || 0)}
-        </span>
-      </div>
+
+      {elapsedTime ? (
+        <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
+          Durée export
+          <span className="font-bold">
+            {dateFormatter.formatDisplayedTime(elapsedTime)}
+          </span>
+        </div>
+      ) : (
+        <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
+          Temps estimé
+          <span className="font-bold">
+            {dateFormatter.formatDisplayedTime(exportInputs.estimatedTime || 0)}
+          </span>
+        </div>
+      )}
 
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
         Début export{" "}
@@ -92,12 +103,6 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
         </span>
       </div>
 
-      {elapsedTime && (
-        <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-          Durée export
-          <span className="font-bold">{dateFormatter.formatDisplayedTime(elapsedTime)}</span>
-        </div>
-      )}
       {exporting ? (
         <div className="flex flex-row justify-between items-center">
           <div className="text-center ml-4">
@@ -114,7 +119,10 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
         </div>
       ) : (
         <div className="flex flex-row justify-between items-center">
-          <div className="text-center ml-4">Export terminé</div>
+          <div className="text-center ml-4">
+            <i className="fa-solid fa-circle-check mr-1"></i>
+            Export terminé
+          </div>
           <button
             onClick={handleCancel}
             type="button"
