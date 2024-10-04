@@ -1,9 +1,12 @@
 export interface ExportInputs {
   docType: DocType;
-  periodStartDate?: Date;
-  periodEndDate?: Date;
   periodStartInputDate: string;
   periodEndInputDate: string;
+}
+
+export interface ExportInformations extends ExportInputs {
+  periodStartDate: Date;
+  periodEndDate: Date;
   estimatedTime?: number; // in seconds
   exportStartDate?: Date;
   docCount?: number;
@@ -16,12 +19,10 @@ export enum DocType {
   order = "Bon de commande",
 }
 
-
 export interface ExportEstimation {
   docCount: number;
   estimatedTime: number;
 }
-
 
 export interface DocumentRow {
   name: string;

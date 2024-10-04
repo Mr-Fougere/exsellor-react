@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
 import {
-	DocType,
-	ExportEstimation,
-	ExportInputs,
+  DocType,
+  ExportEstimation,
+  ExportInformations,
+  ExportInputs,
 } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import { useState } from "react";
@@ -10,90 +11,105 @@ import SellsyClient from "../services/sellsy";
 import MonthSelector from "./MonthSelector";
 
 type ExportFormProps = {
-	setExportInputs: Function;
-  exportInputs: ExportInputs | undefined
+  setExportInputs: Function;
 };
 
 const ExportForm = ({ setExportInputs }: ExportFormProps) => {
-	const {
-		register,
-		handleSubmit,
-		setValue,
+  const {
+    register,
+    handleSubmit,
+    setValue,
     watch,
-		formState: { errors },
-	} = useForm<ExportInputs>();
+    formState: { errors },
+  } = useForm<ExportInputs>();
 
-	const sellsy = new SellsyClient();
+  const sellsy = new SellsyClient();
 
-	const [estimating, setEstimating] = useState<boolean>(false);
+  const [estimating, setEstimating] = useState<boolean>(false);
 
-	const dateFormatter = DateFormatter;
-	const today = new Date();
-	const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
-	const formattedFirstDay = dateFormatter.formatInputDate(firstDayOfMonth);
-	const formattedToday = dateFormatter.formatInputDate(today);
+  const dateFormatter = DateFormatter;
+  const today = new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
+  const formattedFirstDay = dateFormatter.formatInputDate(firstDayOfMonth);
+  const formattedToday = dateFormatter.formatInputDate(today);
 
-	const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const selectedDate = new Date(event.target.value);
-		const endOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
-		const firstOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = new Date(event.target.value);
+    const endOfMonth = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth() + 1,
+      0
+    );
+    const firstOfMonth = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      1
+    );
 
-		if (selectedDate.getDate() === endOfMonth.getDate() && event.target.id == "end-date") {
-			setValue("periodStartInputDate", dateFormatter.formatInputDate(firstOfMonth)); 
-		}
+    if (
+      selectedDate.getDate() === endOfMonth.getDate() &&
+      event.target.id == "end-date"
+    ) {
+      setValue(
+        "periodStartInputDate",
+        dateFormatter.formatInputDate(firstOfMonth)
+      );
+    } else if (
+      selectedDate.getDate() === 1 &&
+      event.target.id == "start-date"
+    ) {
+      setValue("periodEndInputDate", dateFormatter.formatInputDate(endOfMonth));
+    }
+  };
 
-		else if (selectedDate.getDate() === 1 && event.target.id == "start-date") {
-			setValue("periodEndInputDate", dateFormatter.formatInputDate(endOfMonth)); 
-		}
-	};
-
-	const onSubmit = async (data: ExportInputs) => {
-		const formattedData: ExportInputs = {
-			...data,
-			periodStartDate: new Date(data.periodStartInputDate),
-			periodEndDate: new Date(data.periodEndInputDate),
-		};
+  const onSubmit = async (data: ExportInputs) => {
+    const formattedData: ExportInformations = {
+      ...data,
+      periodStartDate: new Date(data.periodStartInputDate),
+      periodEndDate: new Date(data.periodEndInputDate),
+    };
 
     console.log(formattedData);
-    
 
-		setEstimating(true);
-		await estimateExport(formattedData)
-			.then((estimation) => {
-				formattedData.estimatedTime = estimation.estimatedTime;
-				formattedData.docCount = estimation.docCount;
-				setExportInputs(formattedData);
-				setEstimating(false);
-			})
-			.catch((error) => {
-				setEstimating(false);
-				console.error(error);
-			});
-	};
+    setEstimating(true);
+    await estimateExport(formattedData)
+      .then((estimation) => {
+        formattedData.estimatedTime = estimation.estimatedTime;
+        formattedData.docCount = estimation.docCount;
+        setExportInputs(formattedData);
+        setEstimating(false);
+      })
+      .catch((error) => {
+        setEstimating(false);
+        console.error(error);
+      });
+  };
 
-	const estimateExport = (data: ExportInputs): Promise<ExportEstimation> => {
-		return new Promise((resolve, reject) => {
-			sellsy
-				.getDocumentsInfos(data)
-				.then((infos) => {
-					const docCount = infos.nbtotal;
-					resolve({ docCount, estimatedTime: docCount * 2 });
-				})
-				.catch((error) => {
-					reject(error);
-				});
-		});
-	};
+  const estimateExport = (
+    data: ExportInformations
+  ): Promise<ExportEstimation> => {
+    return new Promise((resolve, reject) => {
+      sellsy
+        .getDocumentsInfos(data)
+        .then((infos) => {
+          const docCount = infos.nbtotal;
+          resolve({ docCount, estimatedTime: docCount * 2 });
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
 
   const periodStartInputDate = watch("periodStartInputDate", formattedFirstDay);
-	const periodEndInputDate = watch("periodEndInputDate", formattedToday);
+  const periodEndInputDate = watch("periodEndInputDate", formattedToday);
 
-  const setDates = ( { start, end}: {start: Date, end: Date}) => {
-    setValue("periodStartInputDate", dateFormatter.formatInputDate(start)); 
-    setValue("periodEndInputDate", dateFormatter.formatInputDate(end)); 
-  }
+  const setDates = ({ start, end }: { start: Date; end: Date }) => {
+    setValue("periodStartInputDate", dateFormatter.formatInputDate(start));
+    setValue("periodEndInputDate", dateFormatter.formatInputDate(end));
+  };
 
-	return (
+  return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 w-full">
       <div>
         <label
@@ -129,12 +145,15 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
           defaultValue={formattedFirstDay}
           type="date"
           id="start-date"
-          {...register("periodStartInputDate", { required: "Ce champ est requis", onChange: handleDateChange })}
+          {...register("periodStartInputDate", {
+            required: "Ce champ est requis",
+            onChange: handleDateChange,
+          })}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
-        {errors.periodStartDate && (
+        {errors.periodStartInputDate && (
           <span className="text-red-500 text-sm">
-            {errors.periodStartDate.message}
+            {errors.periodStartInputDate.message}
           </span>
         )}
       </div>
@@ -151,19 +170,25 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
           defaultValue={formattedToday} //
           type="date"
           id="end-date"
-          {...register("periodEndInputDate", { required: "Ce champ est requis", onChange: handleDateChange} )}
+          {...register("periodEndInputDate", {
+            required: "Ce champ est requis",
+            onChange: handleDateChange,
+          })}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
-        {errors.periodEndDate && (
+        {errors.periodEndInputDate && (
           <span className="text-red-500 text-sm">
-            {errors.periodEndDate.message}
+            {errors.periodEndInputDate.message}
           </span>
         )}
       </div>
 
       <MonthSelector
         setDates={setDates}
-        selectedDates={{start: new Date(periodStartInputDate), end: new Date(periodEndInputDate)}}
+        selectedDates={{
+          start: new Date(periodStartInputDate),
+          end: new Date(periodEndInputDate),
+        }}
       />
 
       <button
@@ -174,7 +199,7 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
         <span>{estimating ? "Lancement de l'export" : "Lancer l'export"}</span>
       </button>
     </form>
-	);
+  );
 };
 
 export default ExportForm;

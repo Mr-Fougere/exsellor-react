@@ -2,22 +2,23 @@ import { useState } from "react";
 import ExportForm from "./components/ExportForm";
 import ExportRecap from "./components/ExportRecap";
 import Header from "./components/Header";
-import { DocType, ExportInputs } from "./interfaces/export.interface";
+import { ExportInformations } from "./interfaces/export.interface";
 
 function App() {
-  const [exportInputs, setExportInputs] = useState<ExportInputs>();
+  const [exportInformations, setExportInformations] =
+    useState<ExportInformations>();
 
   return (
     <>
       <Header></Header>
       <main className="max-w-3xl mx-auto p-4 bg-white rounded-lg relative flex justify-center items-center select-none">
-        {exportInputs ? (
+        {exportInformations ? (
           <ExportRecap
-            exportInputs={exportInputs}
-            setExportInputs={setExportInputs}
+            exportInformations={exportInformations}
+            setExportInputs={setExportInformations}
           />
         ) : (
-          <ExportForm setExportInputs={setExportInputs}  exportInputs={exportInputs} />
+          <ExportForm setExportInputs={setExportInformations} />
         )}
       </main>
     </>

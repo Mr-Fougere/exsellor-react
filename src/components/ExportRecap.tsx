@@ -1,73 +1,77 @@
 import { useEffect, useRef, useState } from "react";
-import { DocType, ExportInputs } from "../interfaces/export.interface";
+import { DocType, ExportInformations } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import CSVGenerator from "../services/CSVGenerator";
 import changeFavicon from "../libs/Helpers";
 
 type ExportRecapProps = {
-	exportInputs: ExportInputs;
-	setExportInputs: Function;
+  exportInformations: ExportInformations;
+  setExportInputs: Function;
 };
 
-const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
-	const [exporting, setExporting] = useState<boolean>(false);
-	const [startTime, setStartTime] = useState<Date | null>(null);
-	const [elapsedTime, setElapsedTime] = useState<number | null>(null);
+const ExportRecap = ({
+  exportInformations,
+  setExportInputs,
+}: ExportRecapProps) => {
+  const [exporting, setExporting] = useState<boolean>(false);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number | null>(null);
 
-	const csvGenerator = useRef(new CSVGenerator()); 
-	const dateFormatter = DateFormatter;
+  const csvGenerator = useRef(new CSVGenerator());
+  const dateFormatter = DateFormatter;
 
-	const handleCancel = () => {
-		csvGenerator.current.cancelExport(); 
-		document.title = "Exsellor";
-		changeFavicon("/favicon.ico"); 
-			setExportInputs(null);
-	};
+  const handleCancel = () => {
+    csvGenerator.current.cancelExport();
+    document.title = "Exsellor";
+    changeFavicon("/favicon.ico");
+    setExportInputs(null);
+  };
 
-	const docType = () => {
-		return Object.entries(DocType).map(([key, value]) => {
-			if (key === exportInputs.docType) {
-				return value;
-			}
-		});
-	};
+  const docType = () => {
+    return Object.entries(DocType).map(([key, value]) => {
+      if (key === exportInformations.docType) {
+        return value;
+      }
+    });
+  };
 
-	useEffect(() => {
-		if (!exportInputs) return;
+  useEffect(() => {
+    if (!exportInformations) return;
 
-		document.title = "Export en cours ...";
-		changeFavicon("/progress.png");
-		setExporting(true);
-		setStartTime(new Date());
+    document.title = "Export en cours ...";
+    changeFavicon("/progress.png");
+    setExporting(true);
+    setStartTime(new Date());
 
-		csvGenerator.current.generateCSV(exportInputs)
-			.then((success) => {
-				if(!success) return
-				document.title = "Export terminé";
-				changeFavicon("/done.png");
+    csvGenerator.current
+      .generateCSV(exportInformations)
+      .then((success) => {
+        if (!success) return;
+        document.title = "Export terminé";
+        changeFavicon("/done.png");
 
-				if (startTime) {
-					const endTime = new Date();
-					const timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
-					const diffSeconds = Math.floor(timeDiff / 1000); // In seconds
-					setElapsedTime(diffSeconds);
-				}
-			})
-			.finally(() => {
-				setExporting(false);
-			});
+        if (startTime) {
+          const endTime = new Date();
+          const timeDiff = Math.abs(endTime.getTime() - startTime.getTime());
+          const diffSeconds = Math.floor(timeDiff / 1000); // In seconds
+          setElapsedTime(diffSeconds);
+        }
+      })
+      .finally(() => {
+        setExporting(false);
+      });
 
-		// Cleanup function to handle component unmount or cancellation
-		return () => {
-			csvGenerator.current.cancelExport(); // Ensure export stops if the component unmounts or user cancels
-		};
-	}, [exportInputs]); // Run effect when exportInputs change
+    // Cleanup function to handle component unmount or cancellation
+    return () => {
+      csvGenerator.current.cancelExport(); // Ensure export stops if the component unmounts or user cancels
+    };
+  }, [exportInformations]); // Run effect when exportInputs change
 
-	return (
-		<div className="recap-container space-y-2 w-full">
-			<div className="flex p-2 bg-green-100 items-center rounded text-xs w-full">
-				<i className="fa-solid fa-circle-info mr-2 text-sm"></i>
-				Pas besoin de rester sur la page le temps de l'export
+  return (
+    <div className="recap-container space-y-2 w-full">
+      <div className="flex p-2 bg-green-100 items-center rounded text-xs w-full">
+        <i className="fa-solid fa-circle-info mr-2 text-sm"></i>
+        Pas besoin de rester sur la page le temps de l'export
         <i className="fa-solid fa-thumbs-up ml-2"></i>
       </div>
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
@@ -77,13 +81,13 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
         Date de début
         <span className="font-bold">
-          {dateFormatter.formatDispayedDate(exportInputs.periodStartDate)}
+          {dateFormatter.formatDispayedDate(exportInformations.periodStartDate)}
         </span>
       </div>
       <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
         Date de fin
         <span className="font-bold">
-          {dateFormatter.formatDispayedDate(exportInputs.periodEndDate)}
+          {dateFormatter.formatDispayedDate(exportInformations.periodEndDate)}
         </span>
       </div>
 
@@ -98,7 +102,9 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
         <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
           Temps estimé
           <span className="font-bold">
-            {dateFormatter.formatDisplayedTime(exportInputs.estimatedTime || 0)}
+            {dateFormatter.formatDisplayedTime(
+              exportInformations.estimatedTime || 0
+            )}
           </span>
         </div>
       )}
@@ -122,25 +128,25 @@ const ExportRecap = ({ exportInputs, setExportInputs }: ExportRecapProps) => {
             className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             Annuler l'export
-					</button>
-				</div>
-			) : (
-				<div className="flex flex-row justify-between items-center">
-					<div className="text-center ml-4">
-						<i className="fa-solid fa-circle-check mr-1"></i>
-						Export terminé
-					</div>
-					<button
-						onClick={handleCancel}
-						type="button"
-						className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-					>
-						Faire un autre export
-					</button>
-				</div>
-			)}
-		</div>
-	);
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-row justify-between items-center">
+          <div className="text-center ml-4">
+            <i className="fa-solid fa-circle-check mr-1"></i>
+            Export terminé
+          </div>
+          <button
+            onClick={handleCancel}
+            type="button"
+            className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            Faire un autre export
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default ExportRecap;

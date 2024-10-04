@@ -1,6 +1,13 @@
-import Sellsy from 'node-sellsy';
-import { DocType, ExportInputs } from '../interfaces/export.interface';
-import { DocumentResult, DocumentsOutput, PeriodDates } from '../interfaces/sellsy.interface';
+import Sellsy from "node-sellsy";
+import {
+  DocType,
+  ExportInformations
+} from "../interfaces/export.interface";
+import {
+  DocumentResult,
+  DocumentsOutput,
+  PeriodDates,
+} from "../interfaces/sellsy.interface";
 
 class SellsyClient {
   private sellsy: typeof Sellsy;
@@ -16,19 +23,31 @@ class SellsyClient {
     });
   }
 
-  async getDocumentsInfos({docType, periodStartDate, periodEndDate}: ExportInputs): Promise<any> {
-    const { infos } = await this.getDocuments(docType, 1, 1, { start: periodStartDate, end: periodEndDate });
+  async getDocumentsInfos({
+    docType,
+    periodStartDate,
+    periodEndDate,
+  }: ExportInformations): Promise<any> {
+    const { infos } = await this.getDocuments(docType, 1, 1, {
+      start: periodStartDate,
+      end: periodEndDate,
+    });
     return infos;
   }
-  
-  async getDocuments(docType: DocType, pagenum: number = 1, nbperpage: number = 1, periodDates: PeriodDates): Promise<DocumentsOutput> { 
+
+  async getDocuments(
+    docType: DocType,
+    pagenum: number = 1,
+    nbperpage: number = 1,
+    periodDates: PeriodDates
+  ): Promise<DocumentsOutput> {
     const convertedDates = {
       start: periodDates.start.getTime() / 1000,
       end: periodDates.end.getTime() / 1000,
     };
 
     const result: DocumentResult = await this.sellsy.api({
-      method: 'Document.getList',
+      method: "Document.getList",
       params: {
         doctype: docType,
         pagination: {
@@ -42,15 +61,19 @@ class SellsyClient {
       },
     });
 
-    return { infos: result.response.infos, documents: result.response.result, status: result.response.status };
+    return {
+      infos: result.response.infos,
+      documents: result.response.result,
+      status: result.response.status,
+    };
   }
 
-  async getDocument(type: string, id: string): Promise<any> { 
+  async getDocument(type: string, id: string): Promise<any> {
     try {
       const document = await this.sellsy.documents.getById(type, id);
       return document;
     } catch (error) {
-      console.error('Error retrieving document:', error);
+      console.error("Error retrieving document:", error);
       throw new Error();
     }
   }
