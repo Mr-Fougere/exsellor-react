@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Month } from "../interfaces/enum";
+import { ArrowButton } from "./ArrowButton";
 
 type MonthSelectorProps = {
   setDates: Function;
@@ -13,21 +15,6 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
   );
-
-  const monthNames = [
-    "Janvier",
-    "Février",
-    "Mars",
-    "Avril",
-    "Mai",
-    "Juin",
-    "Juillet",
-    "Août",
-    "Septembre",
-    "Octobre",
-    "Novembre",
-    "Décembre",
-  ];
 
   const today = new Date();
   const currentMonth = today.getMonth();
@@ -70,7 +57,7 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
       i < (currentYear === selectedYear ? currentMonth + 1 : 12);
       i++
     ) {
-      availableMonths[i] = monthNames[i];
+      availableMonths[i] = Object.values(Month)[i];
     }
     setMonths(availableMonths);
   }, [selectedYear]); // Update months when the selected year changes
@@ -97,18 +84,7 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
 
   return (
     <div className="flex flex-row items-center justify-center">
-      <div
-        onClick={handlePrevYear}
-        className={`px-2 py-1 border rounded 
-          ${
-            previousYearDisabled
-              ? "bg-gray-200"
-              : "border-gray-300  hover:bg-gray-200 cursor-pointer"
-          }
-        `}
-      >
-        <i className="fa-solid fa-chevron-left"></i>
-      </div>
+      <ArrowButton direction="left" handleClick={handlePrevYear} disabled={previousYearDisabled}/>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4 px-2 flex-1">
         {Object.entries(months).map(([monthIndex, monthName]) => (
@@ -128,18 +104,7 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
         ))}
       </div>
 
-      <div
-        onClick={handleNextYear}
-        className={`px-2 py-1 border rounded 
-          ${
-            nextYearDisabled
-              ? "bg-gray-200"
-              : "border-gray-300  hover:bg-gray-200 cursor-pointer"
-          }
-        `}
-      >
-        <i className="fa-solid fa-chevron-right"></i>
-      </div>
+      <ArrowButton direction="right" handleClick={handleNextYear} disabled={nextYearDisabled}/>
     </div>
   );
 };

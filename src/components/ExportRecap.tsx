@@ -5,6 +5,8 @@ import CSVGenerator from "../services/CSVGenerator";
 import { updateTabInformation } from "../libs/Helpers";
 import ProgressBar from "./ProgressBar";
 import { DocType } from "../interfaces/enum";
+import { RecapInformation } from "./RecapInformation";
+import { InformationBanner } from "./InformationBanner";
 
 type ExportRecapProps = {
   exportInformations: ExportInformations;
@@ -72,75 +74,51 @@ const ExportRecap = ({
     return dateFormatter.formatDisplayedTime(elapsedTime);
   }, [elapsedTime]);
 
+  const buttonStyle = () => {
+    if (exporting) {
+      return "px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500";
+    }
+    return "px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500";
+  };
+
   return (
     <div className="space-y-2 w-2/5">
-      <div className="flex p-2 bg-green-100 items-center rounded text-xs w-full">
-        <i className="fa-solid fa-circle-info mr-2 text-sm"></i>
+      <InformationBanner backgroundColor="green">
         Pas besoin de rester sur la page le temps de l'export
         <i className="fa-solid fa-thumbs-up ml-2"></i>
-      </div>
-      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Type de document
-        <span className="ml-1 font-bold">{docType()}</span>
-      </div>
-      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Date de début
-        <span className="font-bold">
-          {dateFormatter.formatDispayedDate(exportInformations.periodStartDate)}
-        </span>
-      </div>
-      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Date de fin
-        <span className="font-bold">
-          {dateFormatter.formatDispayedDate(exportInformations.periodEndDate)}
-        </span>
-      </div>
+      </InformationBanner>
 
-      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Temps estimé
-        <span className="font-bold">
-          {dateFormatter.formatDisplayedTime(
-            exportInformations.estimatedTime || 0
-          )}
-        </span>
-      </div>
+      <RecapInformation title="Type de document" value={docType()} />
+      <RecapInformation
+        title="Date de début"
+        value={dateFormatter.formatDispayedDate(
+          exportInformations.periodStartDate
+        )}
+      />
+      <RecapInformation
+        title="Date de fin"
+        value={dateFormatter.formatDispayedDate(
+          exportInformations.periodEndDate
+        )}
+      />
+      <RecapInformation
+        title="Temps estimé"
+        value={dateFormatter.formatDisplayedTime(
+          exportInformations.estimatedTime || 0
+        )}
+      />
+      <RecapInformation title="Temps passé" value={formattedElapsedTime} />
+      <ProgressBar progress={progress} />
 
-      <div className="flex justify-between bg-gray-100 p-2 rounded w-full">
-        Temps passé
-        <span className="font-bold">{formattedElapsedTime}</span>
-      </div>
-
-      <ProgressBar progress={progress}></ProgressBar>
-
-      {exporting ? (
-        <div className="flex flex-row justify-between items-center">
-          <div className="text-center ml-4">
-            <i className="fa-solid fa-spinner fa-spin mr-1"></i>
-            Export en cours
-          </div>
-          <button
-            onClick={handleCancel}
-            type="button"
-            className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Annuler l'export
-          </button>
+      <div className="flex flex-row justify-between items-center">
+        <div className="text-center ml-4">
+          <i className={`fa-solid ${ exporting ? "fa-spinner  fa-spin" : "fa-circle-check"} mr-1`}></i>
+          {exporting ? "Export en cours" : "Export terminé"}
         </div>
-      ) : (
-        <div className="flex flex-row justify-between items-center">
-          <div className="text-center ml-4">
-            <i className="fa-solid fa-circle-check mr-1"></i>
-            Export terminé
-          </div>
-          <button
-            onClick={handleCancel}
-            type="button"
-            className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Faire un autre export
-          </button>
-        </div>
-      )}
+        <button onClick={handleCancel} type="button" className={buttonStyle()}>
+          {exporting ? "Annuler l'export" : "Faire un autre export"}
+        </button>
+      </div>
     </div>
   );
 };
