@@ -83,10 +83,10 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
   const previousYearDisabled = selectedYear === 2013;
 
   return (
-    <div className="flex flex-row items-center justify-center">
+    <div className="flex flex-row items-center justify-center mt-2 px-2">
       <ArrowButton direction="left" handleClick={handlePrevYear} disabled={previousYearDisabled}/>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4 px-2 flex-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 px-2 flex-1">
         {Object.entries(months).map(([monthIndex, monthName]) => (
           <button
             type="button"

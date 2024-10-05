@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Exsellor",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "action": {
     "default_popup": "../src/popup/popup.html",
     "default_icon": {

@@ -31,11 +31,10 @@ const ExportRecap = ({
   };
 
   const docType = () => {
-    return Object.entries(DocType).map(([key, value]) => {
-      if (key === exportInformations.docType) {
-        return value;
-      }
-    });
+    const entry = Object.entries(DocType).find(
+      ([key]) => key === exportInformations.docType
+    );
+    return entry ? entry[1] : "";
   };
 
   useEffect(() => {
@@ -112,7 +111,11 @@ const ExportRecap = ({
 
       <div className="flex flex-row justify-between items-center">
         <div className="text-center ml-4">
-          <i className={`fa-solid ${ exporting ? "fa-spinner  fa-spin" : "fa-circle-check"} mr-1`}></i>
+          <i
+            className={`fa-solid ${
+              exporting ? "fa-spinner  fa-spin" : "fa-circle-check"
+            } mr-1`}
+          ></i>
           {exporting ? "Export en cours" : "Export terminé"}
         </div>
         <button onClick={handleCancel} type="button" className={buttonStyle()}>
