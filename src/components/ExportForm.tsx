@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import {
-  DocType,
   ExportEstimation,
   ExportInformations,
   ExportInputs,
@@ -10,7 +9,6 @@ import { useState } from "react";
 import SellsyClient from "../services/sellsy";
 import MonthSelector from "./MonthSelector";
 import DocTypeRadioGroup from "./DocTypeRadioGroup";
-import ProgressBar from "./ProgressBar";
 
 type ExportFormProps = {
   setExportInputs: Function;
@@ -22,7 +20,6 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors },
   } = useForm<ExportInputs>();
 
   const sellsy = new SellsyClient();
@@ -110,7 +107,7 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 w-full">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 w-2/5">
       <div>
         <label
           htmlFor="choix"

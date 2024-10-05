@@ -1,5 +1,5 @@
 import { UseFormRegister, UseFormWatch } from "react-hook-form";
-import { DocType } from "../interfaces/export.interface";
+import { DocType, DocTypeIcon } from "../interfaces/enum";
 
 type RadioGroupWithIconsProps = {
   id: string;
@@ -16,18 +16,6 @@ const DocTypeRadioGroup = ({
   register,
   watch,
 }: RadioGroupWithIconsProps) => {
-  const getIconClass = (docTypeKey: string) => {
-    switch (docTypeKey) {
-      case "delivery":
-        return "fa-solid fa-truck";
-      case "order":
-        return "fa-solid fa-box";
-      case "creditnote":
-        return "fa-solid fa-dollar-sign";
-      default:
-        return "fa-regular fa-file";
-    }
-  };
 
   const selectedValue = watch(name, "invoice");
 
@@ -45,7 +33,7 @@ const DocTypeRadioGroup = ({
             } 
             hover:bg-sky-200 .border-gray-300`}
         >
-          <i className={`${getIconClass(key)} text-5xl`}></i>
+          <i className={`fa-solid ${DocTypeIcon[key as keyof typeof DocType]} text-5xl w-full h-full flex justify-center items-center`}></i>
           <span className="text-center px-2">{value}</span>
           <input
             type="radio"

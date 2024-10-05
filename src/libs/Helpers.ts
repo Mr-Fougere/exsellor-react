@@ -1,4 +1,4 @@
-function changeFavicon(iconUrl: string): void {
+export const changeFavicon = (iconUrl: string): void => {
   const link: HTMLLinkElement =
     document.querySelector("link[rel='icon']") ||
     document.createElement("link");
@@ -8,4 +8,8 @@ function changeFavicon(iconUrl: string): void {
   document.head.appendChild(link);
 }
 
-export default changeFavicon;
+export const updateTabInformation = (title: string, iconUrl: string): void => {
+  document.title = title;
+  changeFavicon(iconUrl);
+}
+

@@ -1,3 +1,5 @@
+import { DocType } from "./enum";
+
 export interface ExportInputs {
   docType: DocType;
   periodStartInputDate: string;
@@ -12,12 +14,6 @@ export interface ExportInformations extends ExportInputs {
   docCount?: number;
 }
 
-export enum DocType {
-  invoice = "Facture",
-  delivery = "Bon de livraison",
-  creditnote = "Avoir",
-  order = "Bon de commande",
-}
 
 export interface ExportEstimation {
   docCount: number;

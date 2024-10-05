@@ -91,16 +91,26 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
     }
   };
 
+  const nextYearDisabled = selectedYear === currentYear;
+
+  const previousYearDisabled = selectedYear === 2013;
+
   return (
-    <div className="flex flex-row items-center">
+    <div className="flex flex-row items-center justify-center">
       <div
         onClick={handlePrevYear}
-        className="px-2 py-1 border border-gray-300 rounded hover:bg-gray-200 cursor:pointer"
+        className={`px-2 py-1 border rounded 
+          ${
+            previousYearDisabled
+              ? "bg-gray-200"
+              : "border-gray-300  hover:bg-gray-200 cursor-pointer"
+          }
+        `}
       >
         <i className="fa-solid fa-chevron-left"></i>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 px-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4 px-2 flex-1">
         {Object.entries(months).map(([monthIndex, monthName]) => (
           <button
             type="button"
@@ -112,14 +122,21 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
                 : "bg-sky-50 text-black"
             }`}
           >
-            {monthName} {selectedYear}
+            <div>{monthName}</div>
+            <div>{selectedYear}</div>
           </button>
         ))}
       </div>
 
       <div
         onClick={handleNextYear}
-        className="px-2 py-1 border border-gray-300 rounded hover:bg-gray-200 cursor:pointer"
+        className={`px-2 py-1 border rounded 
+          ${
+            nextYearDisabled
+              ? "bg-gray-200"
+              : "border-gray-300  hover:bg-gray-200 cursor-pointer"
+          }
+        `}
       >
         <i className="fa-solid fa-chevron-right"></i>
       </div>

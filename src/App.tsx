@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <Header></Header>
-      <main className="max-w-3xl mx-auto p-4 bg-white rounded-lg relative flex justify-center items-center select-none">
+      <main className="mx-auto p-4 bg-white rounded-lg relative flex justify-center items-start select-none space-x-4 px-">
         <ExportArchives></ExportArchives>
         {exportInformations ? (
           <ExportRecap
@@ -22,6 +22,8 @@ function App() {
         ) : (
           <ExportForm setExportInputs={setExportInformations} />
         )}
+        <div className="w-1/5"
+        ></div>
       </main>
     </>
   );

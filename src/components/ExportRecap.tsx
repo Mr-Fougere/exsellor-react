@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DocType, ExportInformations } from "../interfaces/export.interface";
+import { ExportInformations } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import CSVGenerator from "../services/CSVGenerator";
-import changeFavicon from "../libs/Helpers";
+import { updateTabInformation } from "../libs/Helpers";
 import ProgressBar from "./ProgressBar";
+import { DocType } from "../interfaces/enum";
 
 type ExportRecapProps = {
   exportInformations: ExportInformations;
@@ -22,8 +23,7 @@ const ExportRecap = ({
   const dateFormatter = DateFormatter;
   const handleCancel = () => {
     csvGenerator.current.cancelExport();
-    document.title = "Exsellor";
-    changeFavicon("/favicon.ico");
+    updateTabInformation("Exsellor", "/favicon.ico");
     setExportInputs(null);
     clearInterval(intervalRef.current!);
   };
@@ -39,8 +39,7 @@ const ExportRecap = ({
   useEffect(() => {
     if (!exportInformations) return;
 
-    document.title = "Export en cours ...";
-    changeFavicon("/progress.png");
+    updateTabInformation("Export en cours ...", "/progress.png");
     setExporting(true);
 
     const timeInterval = setInterval(() => {
@@ -51,8 +50,7 @@ const ExportRecap = ({
       .generateCSV(exportInformations)
       .then(({ downloaded }) => {
         if (!downloaded) return;
-        document.title = "Export terminé";
-        changeFavicon("/done.png");
+        updateTabInformation("Export terminé", "/done.png");
         clearInterval(intervalRef.current!);
         clearInterval(timeInterval);
         setExporting(false);
@@ -75,7 +73,7 @@ const ExportRecap = ({
   }, [elapsedTime]);
 
   return (
-    <div className="recap-container space-y-2 w-full">
+    <div className="space-y-2 w-2/5">
       <div className="flex p-2 bg-green-100 items-center rounded text-xs w-full">
         <i className="fa-solid fa-circle-info mr-2 text-sm"></i>
         Pas besoin de rester sur la page le temps de l'export
