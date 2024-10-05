@@ -45,7 +45,6 @@ export function arrayBufferToString(buffer: ArrayBuffer): string {
   return decoder.decode(buffer);
 }
 
-// Helper functions to convert between ArrayBuffer and Base64
 export function ab2b64(buffer: ArrayBuffer): string {
   const binaryString = String.fromCharCode(...new Uint8Array(buffer));
   return window.btoa(binaryString);

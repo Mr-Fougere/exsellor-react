@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header";
 import { ExportInformations } from "./interfaces/export.interface";
 import CredentialKeeper from "./services/CredentialKeeper";
@@ -8,33 +8,43 @@ import { ExportPage } from "./components/ExportPage";
 import { PinForm } from "./components/PinForm";
 
 function App() {
-  const credentialKeeper = new CredentialKeeper();
-
+  const credentialKeeper = useMemo(() => new CredentialKeeper(), []);
+  
   const [exportInformations, setExportInformations] =
     useState<ExportInformations>();
   const [currentPage, setCurrentPage] = useState<JSX.Element>();
+  const [status, setStatus] = useState<CredentialKeeperStatus>();
 
   const switchCurrentPage = () => {
-    switch (credentialKeeper.status) {
+    switch (status) {
       case CredentialKeeperStatus.ready:
-        return (
+        setCurrentPage(
           <ExportPage
             setExportInformations={setExportInformations}
             exportInformations={exportInformations}
           />
         );
-      case CredentialKeeperStatus.waitingPin:
-        return <PinForm credentialKeeper={credentialKeeper}></PinForm>;
+        break;
+      case CredentialKeeperStatus.requirePin:
+        setCurrentPage(<PinForm credentialKeeper={credentialKeeper}></PinForm>);
+        break;
       default:
-        return <CredentialForm credentialKeeper={credentialKeeper} />;
+        setCurrentPage(<CredentialForm credentialKeeper={credentialKeeper} />);
+        break;
     }
   };
 
+  credentialKeeper.setOnStatusChangeCallback((newStatus) => {
+    setStatus(newStatus);
+  });
+
   useEffect(() => {
-    credentialKeeper.fetchCredentials().then(() => {
-      setCurrentPage(switchCurrentPage());
-    });
+    credentialKeeper.fetchCredentials();
   }, []);
+
+  useEffect(() => {
+    switchCurrentPage();
+  }, [status]);
 
   return (
     <>

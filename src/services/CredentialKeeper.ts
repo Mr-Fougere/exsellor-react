@@ -1,7 +1,9 @@
 import {
   CredentialInputs,
   CredentialKeeperStatus,
+  CredentialKey,
   CredentialName,
+  StatusChangeCallback,
 } from "../interfaces/credential.interface";
 import {
   ab2b64,
@@ -16,25 +18,39 @@ class CredentialKeeper {
   private hashedPin: string;
   private encryptCredentials: CredentialInputs;
   private testPinCount: number;
+  private status: CredentialKeeperStatus;
+  private onStatusChange: StatusChangeCallback | null = null;
 
   constructor() {
+    this.status = CredentialKeeperStatus.waitingCredentials;
     this.testPinCount = 0;
     this.hashedPin = "";
     this.encryptCredentials = {
-      [CredentialName.consumerKey]: "",
-      [CredentialName.consumerSecret]: "",
-      [CredentialName.userSecret]: "",
-      [CredentialName.userToken]: "",
+      consumerKey: "",
+      consumerSecret: "",
+      userToken: "",
+      userSecret: "",
     };
   }
 
-  public async secure(credentialInputs: CredentialInputs): Promise<string> {
+  private setStatus(newStatus: CredentialKeeperStatus) {
+    this.status = newStatus;
+    if (this.onStatusChange) {
+      this.onStatusChange(newStatus);
+    }
+  }
+
+  setOnStatusChangeCallback(callback: StatusChangeCallback) {
+    this.onStatusChange = callback;
+  }
+
+  public async secure(credentialInputs: CredentialInputs): Promise<string[]> {
     const pin = this.randomPin();
     await Promise.all(
       Object.keys(CredentialName).map(async (key) => {
         const value = credentialInputs[key as keyof CredentialInputs];
         if (value) {
-          const hashedPin = await hashData(pin);
+          const hashedPin = await hashData(pin.join(''));
           const encryptedValue = await this.encryptData(
             value + validTag,
             hashedPin
@@ -47,7 +63,6 @@ class CredentialKeeper {
         }
       })
     );
-
     return pin;
   }
 
@@ -55,61 +70,68 @@ class CredentialKeeper {
     return Object.values(this.encryptCredentials).every((value) => value);
   }
 
-  public get status(): CredentialKeeperStatus {
-    if (this.validEncryptedCredentials()) {
-      if (this.hashedPin) {
-        return CredentialKeeperStatus.ready;
-      }
-      return CredentialKeeperStatus.waitingPin;
-    }
-    return CredentialKeeperStatus.waitingCredentials;
-  }
-
   public get remainingPinTest(): number {
     return 3 - this.testPinCount;
+  }
+
+  public confirmMemorizedPin(){
+    this.setStatus(CredentialKeeperStatus.requirePin);
   }
 
   public async reset() {
     const credentials = Object.keys(localStorage).filter((key) =>
       key.includes("credential-")
     );
-    credentials.forEach((key) => localStorage.removeItem(key));
-    await this.fetchCredentials();
-  }
 
-  private randomPin(length: number = 4) {
-    let pin = "";
-
-    for (let i = 0; i < length; i++) {
-      pin += Math.floor(Math.random() * 10).toString();
+    for (let key of credentials) {
+      localStorage.removeItem(key);
     }
 
-    return pin;
+    this.encryptCredentials.consumerKey = "";
+    this.encryptCredentials.consumerSecret = "";
+    this.encryptCredentials.userToken = "";
+    this.encryptCredentials.userSecret = "";
+    this.hashedPin = "";
+
+    this.setStatus(CredentialKeeperStatus.waitingCredentials);
+  }
+
+  private randomPin(length: number = 4): string[] {
+    return Array.from({ length }, () =>
+      Math.floor(Math.random() * 10).toString()
+    )
   }
 
   public async fetchCredentials(): Promise<void> {
     await Promise.all(
       Object.keys(CredentialName).map(async (key) => {
         const hashedName = await hashData(key);
-
         const encryptedValue = localStorage.getItem(`credential-${hashedName}`);
+
         if (encryptedValue) {
-          this.encryptCredentials[
-            CredentialName[key as keyof typeof CredentialName]
-          ] = encryptedValue;
+          this.encryptCredentials[key as CredentialKey] = encryptedValue;
         }
       })
     );
+    if (this.validEncryptedCredentials()) {
+      if (!this.hashedPin) {
+        this.setStatus(CredentialKeeperStatus.requirePin);
+      } else {
+        this.setStatus(CredentialKeeperStatus.ready);
+      }
+    } else {
+      this.setStatus(CredentialKeeperStatus.waitingCredentials);
+    }
   }
 
   public async testPin(pin: string): Promise<boolean> {
     const hashedPin = await hashData(pin);
     const decryptedValue = await this.decryptData(
-      this.encryptCredentials[CredentialName.consumerKey],
+      this.encryptCredentials.consumerKey,
       hashedPin
     );
 
-    if (!decryptedValue.decryptedDate) {
+    if (!decryptedValue.decryptedData) {
       this.testPinCount++;
       if (this.testPinCount >= 3) {
         this.testPinCount = 0;
@@ -117,9 +139,11 @@ class CredentialKeeper {
       }
       return false;
     } else {
-      const validPin =  decryptedValue.decryptedDate.includes(validTag);
+      const validPin = decryptedValue.decryptedData.includes(validTag);
+
       if (validPin) {
         this.hashedPin = hashedPin;
+        this.setStatus(CredentialKeeperStatus.ready);
       }
       return validPin;
     }
@@ -127,11 +151,10 @@ class CredentialKeeper {
 
   private async decryptData(
     encryptedData: string,
-    pin: string
-  ): Promise<{ decryptedDate?: string }> {
+    hashedPin: string
+  ): Promise<{ decryptedData?: string }> {
     const [encryptedDataBase64, ivBase64] = encryptedData.split(".");
-    const key = await this.generateKeyFromPin(pin);
-
+    const key = await this.generateKeyFromPin(hashedPin);
     const encryptedBuffer = b64toab(encryptedDataBase64);
     const initializationVector = b64toab(ivBase64);
 
@@ -146,7 +169,7 @@ class CredentialKeeper {
         encryptedBuffer
       );
       return {
-        decryptedDate: new TextDecoder().decode(decryptedBuffer),
+        decryptedData: new TextDecoder().decode(decryptedBuffer),
       };
     } catch (error) {
       return {};

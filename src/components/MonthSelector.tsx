@@ -63,11 +63,7 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
   }, [selectedYear]); // Update months when the selected year changes
 
   const handlePrevYear = () => {
-    console.log(selectedYear, currentYear);
-
     if (selectedYear > 2013) {
-      console.log(selectedYear - 1);
-
       setSelectedYear(selectedYear - 1);
     }
   };

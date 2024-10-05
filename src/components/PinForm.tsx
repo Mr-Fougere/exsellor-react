@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CredentialKeeper from "../services/CredentialKeeper";
+import PinDisplay from "./PinDisplay";
 
 type PinFormProps = {
   credentialKeeper: CredentialKeeper;
@@ -7,16 +8,19 @@ type PinFormProps = {
 };
 
 export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
-  const [pin, setPin] = useState<string[]>([]);
-  const [remainingPinTest, setRemainingPinTest] = useState<number>(credentialKeeper.remainingPinTest);
+  const [remainingPinTest, setRemainingPinTest] = useState<number>(
+    credentialKeeper.remainingPinTest
+  );
+  const pinRef = useRef<string[]>([]);
+  const [pinDisplay, setPinDisplay] = useState<string[]>([]);
 
   const handleKeyUp = (e: KeyboardEvent) => {
-    if (e.key >= "0" && e.key <= "9") {
-      if (pin.length < length) {
-        setPin((prev) => [...prev, e.key]);
-      }
-    } else if (e.key === "Backspace") {
-      setPin((prev) => prev.slice(0, -1));
+    if (pinRef.current.length < length && e.key >= "0" && e.key <= "9") {
+      pinRef.current = [...pinRef.current, e.key];
+      setPinDisplay([...pinRef.current]);
+    } else if (e.key === "Backspace" && pinRef.current.length > 0) {
+      pinRef.current = pinRef.current.slice(0, -1);
+      setPinDisplay([...pinRef.current]);
     }
   };
 
@@ -29,20 +33,22 @@ export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
   }, []);
 
   const handleValidLengthPin = async () => {
-    if (pin.length === length) {
-      await credentialKeeper.testPin(pin.join("")).then((result) => {
+    if (pinRef.current.length === length) {
+      await credentialKeeper.testPin(pinRef.current.join("")).then((result) => {
         if (result) {
           console.log("Pin correct");
         } else {
           setRemainingPinTest(credentialKeeper.remainingPinTest);
         }
+        pinRef.current = [];
+        setPinDisplay([]);
       });
     }
   };
 
   useEffect(() => {
     handleValidLengthPin();
-  }, [pin]);
+  }, [pinDisplay]);
 
   const handleResetCreds = async () => {
     await credentialKeeper.reset();
@@ -50,22 +56,14 @@ export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-row space-x-2">
-        <input maxLength={length} type="number" className="hidden" />
-        {Array.from({ length }).map((_, index) => (
-          <div
-            key={index}
-            className="w-20 h-40 border border-black bg-gray-100 rounded flex items-center justify-center"
-          >
-            {pin[index]} {/* Affiche le chiffre correspondant */}
-          </div>
-        ))}
-      </div>
+      <input maxLength={length} type="number" className="hidden" />
+      <PinDisplay pin={pinDisplay} length={length}></PinDisplay>
+      <div>Tentatives restantes avant reset: {remainingPinTest}</div>
       <div>
-        Tentatives restantes avant reset: {remainingPinTest}
-      </div>
-      <div>
-        <button onClick={handleResetCreds}> Reset creds </button>
+        <button onClick={handleResetCreds}>
+          {" "}
+          Réinitialiser mes identifiants{" "}
+        </button>
       </div>
     </div>
   );
