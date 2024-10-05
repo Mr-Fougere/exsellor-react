@@ -1,5 +1,6 @@
+import { csvHeaders } from "../interfaces/constant";
+import { DocType } from "../interfaces/enum";
 import {
-  DocType,
   Document,
   ExportInformations,
   FormattedRow,
@@ -81,7 +82,6 @@ class CSVGenerator {
     }
 
     if (this.isCancelled) {
-      console.log("CSV generation cancelled.");
       return [];
     }
 
@@ -104,7 +104,6 @@ class CSVGenerator {
 
     for (const [docId, _document] of Object.entries(documents)) {
       if (this.isCancelled) {
-        console.log("CSV generation cancelled during document fetch.");
         return []; // Stop fetching further documents
       }
 
@@ -130,7 +129,6 @@ class CSVGenerator {
 
     for (let pageIndex = 1; pageIndex <= nbPages; pageIndex++) {
       if (this.isCancelled) {
-        console.log("CSV generation cancelled during page fetch.");
         break;
       }
 
@@ -147,26 +145,7 @@ class CSVGenerator {
     }
 
     if (!this.isCancelled) {
-      const rows: FormattedRow[] = [
-        [
-          "Shop",
-          "day",
-          "order_name",
-          "billing_country",
-          "customer_name",
-          "shipping_country",
-          "variant_sku",
-          "orders",
-          "gross_sales",
-          "discounts",
-          "returns",
-          "net_sales",
-          "shipping",
-          "taxes",
-          "total_sales",
-          "Net Quantity",
-        ],
-      ];
+      const rows: FormattedRow[] = [csvHeaders];
 
       rows.push(...documentRowParsed.flat(1));
       const mappedRows = rows.map((row) => row.join(",")).join("\n");

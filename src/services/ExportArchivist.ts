@@ -34,7 +34,7 @@ class ExportArchivist {
   }
 
   public get availableArchives(): string[] {
-    return Object.keys(localStorage);
+    return Object.keys(localStorage).filter((key) => key.includes(".csv"));
   }
 
   deleteArchive(storageKey: string): void {
