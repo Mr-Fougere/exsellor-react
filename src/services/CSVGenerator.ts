@@ -6,7 +6,7 @@ import {
   SellsyAddress,
 } from "../interfaces/export.interface";
 import ExportArchivist from "./ExportArchivist";
-import SellsyClient from "./sellsy";
+import SellsyClient from "./SellsyClient";
 
 class CSVGenerator {
   private sellsy: SellsyClient;

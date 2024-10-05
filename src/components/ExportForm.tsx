@@ -6,7 +6,7 @@ import {
 } from "../interfaces/export.interface";
 import DateFormatter from "../libs/DateFormatter";
 import { useState } from "react";
-import SellsyClient from "../services/sellsy";
+import SellsyClient from "../services/SellsyClient";
 import MonthSelector from "./MonthSelector";
 import DocTypeRadioGroup from "./DocTypeRadioGroup";
 

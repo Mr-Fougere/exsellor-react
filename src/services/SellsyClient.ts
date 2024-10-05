@@ -1,6 +1,5 @@
 import Sellsy from "node-sellsy";
 import {
-  DocType,
   ExportInformations
 } from "../interfaces/export.interface";
 import {
@@ -8,6 +7,7 @@ import {
   DocumentsOutput,
   PeriodDates,
 } from "../interfaces/sellsy.interface";
+import { DocType } from "../interfaces/enum";
 
 class SellsyClient {
   private sellsy: typeof Sellsy;

@@ -5,15 +5,15 @@
   "action": {
     "default_popup": "../src/popup/popup.html",
     "default_icon": {
-      "16": "./96.png",
-      "48": "./96.png",
-      "128": "./96.png"
+      "16": "./assets/96.png",
+      "48": "./assets/96.png",
+      "128": "./assets/96.png"
     }
   },
   "icons": {
-    "16": "./96.png",
-    "48": "./96.png",
-    "128": "./96.png"
+    "16": "./assets/96.png",
+    "48": "./assets/96.png",
+    "128": "./assets/96.png"
   },
   "permissions": [
     "tabs",

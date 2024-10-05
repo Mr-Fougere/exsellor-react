@@ -25,7 +25,7 @@ const ExportRecap = ({
   const dateFormatter = DateFormatter;
   const handleCancel = () => {
     csvGenerator.current.cancelExport();
-    updateTabInformation("Exsellor", "/favicon.ico");
+    updateTabInformation("Exsellor", "./assets/favicon.ico");
     setExportInputs(null);
     clearInterval(intervalRef.current!);
   };
@@ -41,7 +41,7 @@ const ExportRecap = ({
   useEffect(() => {
     if (!exportInformations) return;
 
-    updateTabInformation("Export en cours ...", "/progress.png");
+    updateTabInformation("Export en cours ...", "./assets/progress.png");
     setExporting(true);
 
     const timeInterval = setInterval(() => {
@@ -52,7 +52,7 @@ const ExportRecap = ({
       .generateCSV(exportInformations)
       .then(({ downloaded }) => {
         if (!downloaded) return;
-        updateTabInformation("Export terminé", "/done.png");
+        updateTabInformation("Export terminé", "./assets/done.png");
         clearInterval(intervalRef.current!);
         clearInterval(timeInterval);
         setExporting(false);
