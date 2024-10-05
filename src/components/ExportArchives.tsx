@@ -69,7 +69,6 @@ const ExportArchives = () => {
           <li>Aucune archive disponible.</li>
         )}
       </ul>
-      <button onClick={handleClearArchives}>Tout supprimer</button>
     </div>
   );
 };

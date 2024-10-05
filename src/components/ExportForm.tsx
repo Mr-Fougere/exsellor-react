@@ -15,12 +15,7 @@ type ExportFormProps = {
 };
 
 const ExportForm = ({ setExportInputs }: ExportFormProps) => {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-  } = useForm<ExportInputs>();
+  const { register, handleSubmit, setValue, watch } = useForm<ExportInputs>();
 
   const sellsy = new SellsyClient();
 
