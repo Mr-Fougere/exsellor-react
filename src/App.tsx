@@ -9,7 +9,7 @@ import { CredentialForm } from "./components/credential/CredentialForm";
 function App() {
   const credentialKeeper = useMemo(() => new CredentialKeeper(), []);
   const [currentPage, setCurrentPage] = useState<JSX.Element>();
-  const [status, setStatus] = useState<CredentialKeeperStatus>();
+  const [status, setStatus] = useState<CredentialKeeperStatus>();  
 
   const switchCurrentPage = () => {
     switch (status) {

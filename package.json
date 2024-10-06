@@ -9,7 +9,7 @@
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "watch-build": "nodemon --watch src --ext ts,tsx,js,jsx --exec npm run build"
+    "watch-build": "nodemon --watch src --ext ts,tsx,js,jsx,json,html --exec npm run build"
   },
   "dependencies": {
     "buffer": "^6.0.3",
