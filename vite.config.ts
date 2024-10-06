@@ -8,7 +8,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "index.html",
-        popup: "src/popup/popup.html",
+        popup: "popup.html",
       },
       output: {
         entryFileNames: "[name].js",
@@ -17,7 +17,6 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes("node_modules")) {
             const packageName = id
-              .toString()
               .split("node_modules/")[1] 
               .split("/")[0] 
               .toString();
@@ -28,6 +27,6 @@ export default defineConfig({
       },
     },
     outDir: "dist",
-    chunkSizeWarningLimit: 300,
+    chunkSizeWarningLimit: 200,
   },
 });
