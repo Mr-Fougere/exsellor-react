@@ -15,5 +15,5 @@ export const formatDispayedDate = (date: Date) => {
 export const formatDisplayedTime = (time: number) => {
   const minutes = Math.floor(time / 60);
   const remainingSeconds = time % 60;
-  return `${minutes} min ${remainingSeconds} s`;
+  return `${minutes ? minutes + " min " : ""}${remainingSeconds} s`;
 };

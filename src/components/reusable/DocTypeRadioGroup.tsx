@@ -1,11 +1,11 @@
-import { UseFormRegister, UseFormWatch } from "react-hook-form";
+import { UseFormRegister } from "react-hook-form";
 import { DocType, DocTypeIcon } from "../../interfaces/enum";
 
 type RadioGroupWithIconsProps = {
   id: string;
   name: string;
   requiredMessage: string;
-  watch: UseFormWatch<any>;
+  selectedValue: string;
   register: UseFormRegister<any>;
 };
 
@@ -14,10 +14,9 @@ const DocTypeRadioGroup = ({
   name,
   requiredMessage,
   register,
-  watch,
+  selectedValue,
 }: RadioGroupWithIconsProps) => {
 
-  const selectedValue = watch(name, "invoice");
 
   return (
     <div className="space-x-2 flex flex-row align-center mt-2 px-2">

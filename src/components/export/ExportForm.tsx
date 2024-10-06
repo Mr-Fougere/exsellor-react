@@ -5,12 +5,13 @@ import {
   ExportInputs,
 } from "../../interfaces/export.interface";
 import { formatInputDate } from "../../libs/DateFormatter";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SellsyClient from "../../services/SellsyClient";
 import DocTypeRadioGroup from "../reusable/DocTypeRadioGroup";
 import MonthSelector from "../reusable/MonthSelector";
 import ExportArchivist from "../../services/ExportArchivist";
 import { bakeFileName } from "../../libs/Helpers";
+import { DocType } from "../../interfaces/enum";
 
 type ExportFormProps = {
   setExportInputs: Function;
@@ -22,6 +23,7 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
   const exportArchivist = useRef<ExportArchivist>(new ExportArchivist());
 
   const [estimating, setEstimating] = useState<boolean>(false);
+  const [archiveUrl, setArchiveUrl] = useState<string | undefined>(undefined);
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
   const formattedFirstDay = formatInputDate(firstDayOfMonth);
@@ -62,17 +64,6 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
 
     setEstimating(true);
 
-    const filename = bakeFileName(
-      formattedData.docType,
-      formattedData.periodStartDate,
-      formattedData.periodEndDate
-    );
-    if (exportArchivist.current.isArchived(filename)) {
-      exportArchivist.current.download(filename);
-      setEstimating(false);
-      return;
-    }
-
     await estimateExport(formattedData)
       .then((estimation) => {
         formattedData.estimatedTime = estimation.estimatedTime;
@@ -105,11 +96,27 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
 
   const periodStartInputDate = watch("periodStartInputDate", formattedFirstDay);
   const periodEndInputDate = watch("periodEndInputDate", formattedToday);
+  const docType = watch("docType", "invoice" as DocType);
 
   const setDates = ({ start, end }: { start: Date; end: Date }) => {
     setValue("periodStartInputDate", formatInputDate(start));
     setValue("periodEndInputDate", formatInputDate(end));
   };
+
+  const filename = bakeFileName(
+    docType,
+    new Date(periodStartInputDate),
+    new Date(periodEndInputDate)
+  );
+
+  useEffect(() => {
+    if (exportArchivist.current.isArchived(filename)) {
+      setArchiveUrl(exportArchivist.current.archiveUrl(filename));
+      return;
+    } else {
+      setArchiveUrl(undefined);
+    }
+  }, [filename]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 w-2/5">
@@ -125,7 +132,7 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
           id="doc-type"
           requiredMessage="required"
           register={register}
-          watch={watch}
+          selectedValue={docType}
         ></DocTypeRadioGroup>
       </div>
 
@@ -185,14 +192,26 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={estimating}
-        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4 "
-      >
-        {estimating && <i className="fa-solid fa-spinner fa-spin mr-2"></i>}
-        <span>{estimating ? "Lancement de l'export" : "Lancer l'export"}</span>
-      </button>
+      {archiveUrl ? (
+        <a
+          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4"
+          href={archiveUrl}
+          download={filename}
+        >
+          <span>Télécharger l'archive</span>
+        </a>
+      ) : (
+        <button
+          type="submit"
+          disabled={estimating}
+          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-4 "
+        >
+          {estimating && <i className="fa-solid fa-spinner fa-spin mr-2"></i>}
+          <span>
+            {estimating ? "Lancement de l'export" : "Lancer l'export"}
+          </span>
+        </button>
+      )}
     </form>
   );
 };
