@@ -56,7 +56,6 @@ export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
 
   return (
     <div className="flex flex-col justify-center p-4 items-center">
-      <input maxLength={length} type="number" className="hidden" />
       <PinDisplay pin={pinDisplay} length={length}></PinDisplay>
       <div className="mt-2">
         Tentatives restantes avant reset: {remainingPinTest}
