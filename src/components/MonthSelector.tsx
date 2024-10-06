@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Month } from "../interfaces/enum";
 import { ArrowButton } from "./ArrowButton";
+import { firstSellsyUsageYear } from "../interfaces/constant";
 
 type MonthSelectorProps = {
   setDates: Function;
@@ -63,7 +64,7 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
   }, [selectedYear]); // Update months when the selected year changes
 
   const handlePrevYear = () => {
-    if (selectedYear > 2013) {
+    if (selectedYear > firstSellsyUsageYear) {
       setSelectedYear(selectedYear - 1);
     }
   };
@@ -76,7 +77,7 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
 
   const nextYearDisabled = selectedYear === currentYear;
 
-  const previousYearDisabled = selectedYear === 2013;
+  const previousYearDisabled = selectedYear === firstSellsyUsageYear;
 
   return (
     <div className="flex flex-row items-center justify-center mt-2 px-2">

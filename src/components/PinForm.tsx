@@ -55,12 +55,17 @@ export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col justify-center p-4 items-center">
       <input maxLength={length} type="number" className="hidden" />
       <PinDisplay pin={pinDisplay} length={length}></PinDisplay>
-      <div>Tentatives restantes avant reset: {remainingPinTest}</div>
+      <div className="mt-2">
+        Tentatives restantes avant reset: {remainingPinTest}
+      </div>
       <div>
-        <button onClick={handleResetCreds}>
+        <button
+          className="w-max inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-2 "
+          onClick={handleResetCreds}
+        >
           {" "}
           Réinitialiser mes identifiants{" "}
         </button>

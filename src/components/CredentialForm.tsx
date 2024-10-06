@@ -27,9 +27,9 @@ export const CredentialForm = ({ credentialKeeper }: CredentialFormProps) => {
   };
 
   return (
-    <div>
+    <div className="flex justify-center items-center p-4" >
       {pin.length > 0 ? (
-        <div>
+        <div className="flex flex-col justify-center items-center space-y-2">
           <h2 className="text-2xl font-bold">Votre code PIN</h2>
           <PinDisplay pin={pin} length={pin.length} />
           <InformationBanner backgroundColor="red">
