@@ -3,25 +3,22 @@
   "name": "Exsellor",
   "version": "2.5.1",
   "action": {
-    "default_popup": "../src/popup/popup.html",
+    "default_popup": "../popup.html",
     "default_icon": {
-      "16": "./assets/96.png",
-      "48": "./assets/96.png",
-      "128": "./assets/96.png"
+      "16": "./assets/icons/16.png",
+      "32": "./assets/icons/32.png",
+      "48": "./assets/icons/48.png",
+      "96": "./assets/icons/96.png",
+      "128": "./assets/icons/128.png"
     }
   },
   "icons": {
-    "16": "./assets/96.png",
-    "48": "./assets/96.png",
-    "128": "./assets/96.png"
+    "16": "./assets/icons/16.png",
+    "32": "./assets/icons/32.png",
+    "48": "./assets/icons/48.png",
+    "96": "./assets/icons/96.png",
+    "128": "./assets/icons/128.png"
   },
-  "permissions": [
-    "tabs",
-    "downloads",
-    "activeTab",
-    "storage",
-    "scripting",
-    "webRequest"
-  ],
+  "permissions": ["downloads", "storage"],
   "host_permissions": ["https://apifeed.sellsy.com/*"]
 }
