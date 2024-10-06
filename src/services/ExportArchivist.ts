@@ -5,20 +5,31 @@ class ExportArchivist {
 
   archive(str: string, storageKey: string): boolean {
     const compressedString = LZString.compressToBase64(str);
-    if(compressedString.length <= this.remainingStorageSize) {
-      console.log("Storage not reached");
+    if (compressedString.length <= this.remainingStorageSize) {
       localStorage.setItem(storageKey, compressedString);
-      return true
+      return true;
     }
-    console.log("Storage limit reached");
-    return false
+    return false;
+  }
+
+  download(storageKey: string): void {
+    const archiveUrl = this.archiveUrl(storageKey);
+    if (!archiveUrl) return;
+
+    chrome.downloads.download({
+      url: archiveUrl,
+      filename: storageKey,
+      saveAs: false,
+    });
   }
 
   archiveUrl(storageKey: string): string | undefined {
     const compressedString = this.unarchive(storageKey);
-    if (!compressedString) return ;
+    if (!compressedString) return;
 
-    const blob = new Blob([compressedString], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([compressedString], {
+      type: "text/csv;charset=utf-8;",
+    });
     return URL.createObjectURL(blob);
   }
 
@@ -43,7 +54,7 @@ class ExportArchivist {
 
   clearArchives(): void {
     localStorage.clear();
-  } 
+  }
 
   public get remainingStorageSize(): number {
     const storageSize = 1024 * 1024 * 5; // 5MB

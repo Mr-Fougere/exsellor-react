@@ -6,6 +6,7 @@ import {
   FormattedRow,
   SellsyAddress,
 } from "../interfaces/export.interface";
+import { bakeFileName } from "../libs/Helpers";
 import ExportArchivist from "./ExportArchivist";
 import SellsyClient from "./SellsyClient";
 
@@ -149,7 +150,7 @@ class CSVGenerator {
 
       rows.push(...documentRowParsed.flat(1));
       const mappedRows = rows.map((row) => row.join(",")).join("\n");
-      const exportName = `sellsy_${exportInformations.docType}_${exportInformations.periodStartInputDate}_${exportInformations.periodEndInputDate}.csv`;
+      const exportName = bakeFileName(exportInformations.docType,exportInformations.periodStartDate,exportInformations.periodEndDate)
       const archived = this.exportArchivist.archive(mappedRows, exportName);
       const downloaded = this.downloadCSV(mappedRows, exportName);
       return { archived, downloaded };

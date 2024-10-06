@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ExportArchivist from "../../services/ExportArchivist";
 import { ExportInformations } from "../../interfaces/export.interface";
 import { DocType } from "../../interfaces/enum";
-const ExportArchives = () => {
-  const exportArchivist = new ExportArchivist();
+
+type ExportArchivesProps = {
+  exportInformations: ExportInformations | undefined;
+};
+
+const ExportArchives = ({ exportInformations }: ExportArchivesProps) => {
+  const exportArchivist = useRef<ExportArchivist>(new ExportArchivist());
   const [availableArchives, setAvailableArchives] = useState<string[]>([]);
 
   useEffect(() => {
     const loadArchives = () => {
-      const archives = exportArchivist.availableArchives;
+      const archives = exportArchivist.current.availableArchives;
       setAvailableArchives(archives);
     };
 
     loadArchives();
-  }, []);
-
-  const handleClearArchives = () => {
-    exportArchivist.clearArchives();
-    setAvailableArchives([]);
-  };
+  }, [exportInformations, exportArchivist]);
 
   const parseArchiveInformations = (
     archiveName: string
@@ -48,7 +48,7 @@ const ExportArchives = () => {
                 className="flex flex-row items-center bg-gray-100 p-2 rounded space-x-2 w-fit"
               >
                 <a
-                  href={exportArchivist.archiveUrl(archive)}
+                  href={exportArchivist.current.archiveUrl(archive)}
                   download={archive}
                 >
                   <i className="fa-solid fa-file-arrow-down text-3xl hover:text-gray-500"></i>

@@ -10,9 +10,7 @@ type Props = {
   credentialKeeper: CredentialKeeper;
 };
 
-export const ExportPage = ({
-  credentialKeeper,
-}: Props) => {
+export const ExportPage = ({ credentialKeeper }: Props) => {
   const [exportInformations, setExportInformations] =
     useState<ExportInformations>();
   const sellsyClient = useRef<SellsyClient>(new SellsyClient());
@@ -25,7 +23,7 @@ export const ExportPage = ({
 
   return (
     <main className="mx-auto p-4 flex justify-center items-start select-none space-x-4">
-      <ExportArchives></ExportArchives>
+      <ExportArchives exportInformations={exportInformations}></ExportArchives>
       {exportInformations ? (
         <ExportRecap
           sellsyClient={sellsyClient}

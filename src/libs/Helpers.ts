@@ -1,3 +1,6 @@
+import { DocType } from "../interfaces/enum";
+import { formatInputDate } from "./DateFormatter";
+
 export const changeFavicon = (iconUrl: string): void => {
   const link: HTMLLinkElement =
     document.querySelector("link[rel='icon']") ||
@@ -58,4 +61,15 @@ export function b64toab(base64: string): ArrayBuffer {
     bytes[i] = binaryString.charCodeAt(i);
   }
   return bytes.buffer;
+}
+
+export function bakeFileName(
+  docType: DocType,
+  startDate: Date,
+  endDate: Date,
+  extension: string  = "csv"
+): string {
+  return `sellsy_${docType}_${formatInputDate(startDate)}_${formatInputDate(
+    endDate
+  )}.${extension}`;
 }

@@ -4,10 +4,10 @@ import SellsyClient from "../../services/SellsyClient";
 import CSVGenerator from "../../services/CSVGenerator";
 import { updateTabInformation } from "../../libs/Helpers";
 import { DocType } from "../../interfaces/enum";
-import DateFormatter from "../../libs/DateFormatter";
 import { InformationBanner } from "../reusable/InformationBanner";
 import { RecapInformation } from "../reusable/RecapInformation";
 import ProgressBar from "../reusable/ProgressBar";
+import { formatDispayedDate, formatDisplayedTime } from "../../libs/DateFormatter";
 
 type ExportRecapProps = {
   exportInformations: ExportInformations;
@@ -26,7 +26,6 @@ const ExportRecap = ({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const csvGenerator = useRef(new CSVGenerator(sellsyClient.current));
 
-  const dateFormatter = DateFormatter;
   const handleCancel = () => {
     csvGenerator.current.cancelExport();
     updateTabInformation("Exsellor", "./assets/favicon.ico");
@@ -74,7 +73,7 @@ const ExportRecap = ({
   }, [exportInformations]);
 
   const formattedElapsedTime = useMemo(() => {
-    return dateFormatter.formatDisplayedTime(elapsedTime);
+    return formatDisplayedTime(elapsedTime);
   }, [elapsedTime]);
 
   const buttonStyle = () => {
@@ -94,19 +93,19 @@ const ExportRecap = ({
       <RecapInformation title="Type de document" value={docType()} />
       <RecapInformation
         title="Date de début"
-        value={dateFormatter.formatDispayedDate(
+        value={formatDispayedDate(
           exportInformations.periodStartDate
         )}
       />
       <RecapInformation
         title="Date de fin"
-        value={dateFormatter.formatDispayedDate(
+        value={formatDispayedDate(
           exportInformations.periodEndDate
         )}
       />
       <RecapInformation
         title="Temps estimé"
-        value={dateFormatter.formatDisplayedTime(
+        value={formatDisplayedTime(
           exportInformations.estimatedTime || 0
         )}
       />

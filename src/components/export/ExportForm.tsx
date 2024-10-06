@@ -4,27 +4,28 @@ import {
   ExportInformations,
   ExportInputs,
 } from "../../interfaces/export.interface";
-import DateFormatter from "../../libs/DateFormatter";
-import { useState } from "react";
+import { formatInputDate } from "../../libs/DateFormatter";
+import { useRef, useState } from "react";
 import SellsyClient from "../../services/SellsyClient";
 import DocTypeRadioGroup from "../reusable/DocTypeRadioGroup";
 import MonthSelector from "../reusable/MonthSelector";
+import ExportArchivist from "../../services/ExportArchivist";
+import { bakeFileName } from "../../libs/Helpers";
 
 type ExportFormProps = {
   setExportInputs: Function;
-  sellsyClient: React.MutableRefObject<SellsyClient>
+  sellsyClient: React.MutableRefObject<SellsyClient>;
 };
 
 const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
   const { register, handleSubmit, setValue, watch } = useForm<ExportInputs>();
+  const exportArchivist = useRef<ExportArchivist>(new ExportArchivist());
 
   const [estimating, setEstimating] = useState<boolean>(false);
-
-  const dateFormatter = DateFormatter;
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
-  const formattedFirstDay = dateFormatter.formatInputDate(firstDayOfMonth);
-  const formattedToday = dateFormatter.formatInputDate(today);
+  const formattedFirstDay = formatInputDate(firstDayOfMonth);
+  const formattedToday = formatInputDate(today);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = new Date(event.target.value);
@@ -43,15 +44,12 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
       selectedDate.getDate() === endOfMonth.getDate() &&
       event.target.id == "end-date"
     ) {
-      setValue(
-        "periodStartInputDate",
-        dateFormatter.formatInputDate(firstOfMonth)
-      );
+      setValue("periodStartInputDate", formatInputDate(firstOfMonth));
     } else if (
       selectedDate.getDate() === 1 &&
       event.target.id == "start-date"
     ) {
-      setValue("periodEndInputDate", dateFormatter.formatInputDate(endOfMonth));
+      setValue("periodEndInputDate", formatInputDate(endOfMonth));
     }
   };
 
@@ -63,6 +61,18 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
     };
 
     setEstimating(true);
+
+    const filename = bakeFileName(
+      formattedData.docType,
+      formattedData.periodStartDate,
+      formattedData.periodEndDate
+    );
+    if (exportArchivist.current.isArchived(filename)) {
+      exportArchivist.current.download(filename);
+      setEstimating(false);
+      return;
+    }
+
     await estimateExport(formattedData)
       .then((estimation) => {
         formattedData.estimatedTime = estimation.estimatedTime;
@@ -71,7 +81,7 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
 
         setEstimating(false);
       })
-      .catch((error) => {        
+      .catch((error) => {
         setEstimating(false);
         console.error(error);
       });
@@ -97,8 +107,8 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
   const periodEndInputDate = watch("periodEndInputDate", formattedToday);
 
   const setDates = ({ start, end }: { start: Date; end: Date }) => {
-    setValue("periodStartInputDate", dateFormatter.formatInputDate(start));
-    setValue("periodEndInputDate", dateFormatter.formatInputDate(end));
+    setValue("periodStartInputDate", formatInputDate(start));
+    setValue("periodEndInputDate", formatInputDate(end));
   };
 
   return (
