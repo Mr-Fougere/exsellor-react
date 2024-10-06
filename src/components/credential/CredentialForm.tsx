@@ -1,13 +1,11 @@
 import { useForm } from "react-hook-form";
-import CredentialKeeper from "../services/CredentialKeeper";
-import {
-  CredentialInputs,
-  CredentialName,
-} from "../interfaces/credential.interface";
-import CredentialInput from "./CredentialInput";
+import CredentialKeeper from "../../services/CredentialKeeper";
 import { useState } from "react";
-import PinDisplay from "./PinDisplay";
-import { InformationBanner } from "./InformationBanner";
+import { CredentialInputs, CredentialName } from "../../interfaces/credential.interface";
+import PinDisplay from "../reusable/PinDisplay";
+import { InformationBanner } from "../reusable/InformationBanner";
+import CredentialInput from "./CredentialInput";
+
 
 type CredentialFormProps = {
   credentialKeeper: CredentialKeeper;

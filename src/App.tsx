@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import Header from "./components/Header";
-import { ExportInformations } from "./interfaces/export.interface";
+import Header from "./components/reusable/Header";
 import CredentialKeeper from "./services/CredentialKeeper";
-import { CredentialForm } from "./components/CredentialForm";
 import { CredentialKeeperStatus } from "./interfaces/credential.interface";
-import { ExportPage } from "./components/ExportPage";
-import { PinForm } from "./components/PinForm";
+import { ExportPage } from "./components/export/ExportPage";
+import { PinForm } from "./components/credential/PinForm";
+import { CredentialForm } from "./components/credential/CredentialForm";
 
 function App() {
   const credentialKeeper = useMemo(() => new CredentialKeeper(), []);

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import CredentialKeeper from "../services/CredentialKeeper";
-import PinDisplay from "./PinDisplay";
+import CredentialKeeper from "../../services/CredentialKeeper";
+import PinDisplay from "../reusable/PinDisplay";
 
 type PinFormProps = {
   credentialKeeper: CredentialKeeper;

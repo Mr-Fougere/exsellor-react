@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ExportInformations } from "../interfaces/export.interface";
-import DateFormatter from "../libs/DateFormatter";
-import CSVGenerator from "../services/CSVGenerator";
-import { updateTabInformation } from "../libs/Helpers";
-import ProgressBar from "./ProgressBar";
-import { DocType } from "../interfaces/enum";
-import { RecapInformation } from "./RecapInformation";
-import { InformationBanner } from "./InformationBanner";
-import SellsyClient from "../services/SellsyClient";
+import { ExportInformations } from "../../interfaces/export.interface";
+import SellsyClient from "../../services/SellsyClient";
+import CSVGenerator from "../../services/CSVGenerator";
+import { updateTabInformation } from "../../libs/Helpers";
+import { DocType } from "../../interfaces/enum";
+import DateFormatter from "../../libs/DateFormatter";
+import { InformationBanner } from "../reusable/InformationBanner";
+import { RecapInformation } from "../reusable/RecapInformation";
+import ProgressBar from "../reusable/ProgressBar";
 
 type ExportRecapProps = {
   exportInformations: ExportInformations;

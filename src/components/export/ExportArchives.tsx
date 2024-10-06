@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import ExportArchivist from "../services/ExportArchivist";
-import { ExportInformations } from "../interfaces/export.interface";
-import { DocType } from "../interfaces/enum";
-
+import ExportArchivist from "../../services/ExportArchivist";
+import { ExportInformations } from "../../interfaces/export.interface";
+import { DocType } from "../../interfaces/enum";
 const ExportArchives = () => {
   const exportArchivist = new ExportArchivist();
   const [availableArchives, setAvailableArchives] = useState<string[]>([]);

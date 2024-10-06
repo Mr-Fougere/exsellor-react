@@ -1,5 +1,5 @@
 import { UseFormRegister, UseFormWatch } from "react-hook-form";
-import { DocType, DocTypeIcon } from "../interfaces/enum";
+import { DocType, DocTypeIcon } from "../../interfaces/enum";
 
 type RadioGroupWithIconsProps = {
   id: string;

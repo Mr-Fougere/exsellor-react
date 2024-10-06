@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Month } from "../interfaces/enum";
+import { Month } from "../../interfaces/enum";
 import { ArrowButton } from "./ArrowButton";
-import { firstSellsyUsageYear } from "../interfaces/constant";
+import { firstSellsyUsageYear } from "../../constant";
 
 type MonthSelectorProps = {
   setDates: Function;

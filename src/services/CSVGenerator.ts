@@ -1,4 +1,4 @@
-import { csvHeaders } from "../interfaces/constant";
+import { csvHeaders } from "../constant";
 import { DocType } from "../interfaces/enum";
 import {
   Document,
