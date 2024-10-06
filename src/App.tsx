@@ -9,21 +9,13 @@ import { PinForm } from "./components/PinForm";
 
 function App() {
   const credentialKeeper = useMemo(() => new CredentialKeeper(), []);
-  
-  const [exportInformations, setExportInformations] =
-    useState<ExportInformations>();
   const [currentPage, setCurrentPage] = useState<JSX.Element>();
   const [status, setStatus] = useState<CredentialKeeperStatus>();
 
   const switchCurrentPage = () => {
     switch (status) {
       case CredentialKeeperStatus.ready:
-        setCurrentPage(
-          <ExportPage
-            setExportInformations={setExportInformations}
-            exportInformations={exportInformations}
-          />
-        );
+        setCurrentPage(<ExportPage credentialKeeper={credentialKeeper} />);
         break;
       case CredentialKeeperStatus.requirePin:
         setCurrentPage(<PinForm credentialKeeper={credentialKeeper}></PinForm>);

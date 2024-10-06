@@ -12,12 +12,11 @@ import DocTypeRadioGroup from "./DocTypeRadioGroup";
 
 type ExportFormProps = {
   setExportInputs: Function;
+  sellsyClient: React.MutableRefObject<SellsyClient>
 };
 
-const ExportForm = ({ setExportInputs }: ExportFormProps) => {
+const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
   const { register, handleSubmit, setValue, watch } = useForm<ExportInputs>();
-
-  const sellsy = new SellsyClient();
 
   const [estimating, setEstimating] = useState<boolean>(false);
 
@@ -69,9 +68,10 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
         formattedData.estimatedTime = estimation.estimatedTime;
         formattedData.docCount = estimation.docCount;
         setExportInputs(formattedData);
+
         setEstimating(false);
       })
-      .catch((error) => {
+      .catch((error) => {        
         setEstimating(false);
         console.error(error);
       });
@@ -81,7 +81,7 @@ const ExportForm = ({ setExportInputs }: ExportFormProps) => {
     data: ExportInformations
   ): Promise<ExportEstimation> => {
     return new Promise((resolve, reject) => {
-      sellsy
+      sellsyClient.current
         .getDocumentsInfos(data)
         .then((infos) => {
           const docCount = infos.nbtotal;

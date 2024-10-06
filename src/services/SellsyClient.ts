@@ -1,25 +1,23 @@
 import Sellsy from "node-sellsy";
-import {
-  ExportInformations
-} from "../interfaces/export.interface";
+import { ExportInformations } from "../interfaces/export.interface";
 import {
   DocumentResult,
   DocumentsOutput,
   PeriodDates,
 } from "../interfaces/sellsy.interface";
 import { DocType } from "../interfaces/enum";
+import { CredentialInputs } from "../interfaces/credential.interface";
 
 class SellsyClient {
   private sellsy: typeof Sellsy;
 
   constructor() {
+    this.sellsy = null;
+  }
+
+  setup(credentials: CredentialInputs) {
     this.sellsy = new Sellsy({
-      creds: {
-        consumerKey: import.meta.env.VITE_CONSUMER_KEY,
-        consumerSecret: import.meta.env.VITE_CONSUMER_SECRET,
-        userToken: import.meta.env.VITE_USER_TOKEN,
-        userSecret: import.meta.env.VITE_USER_SECRET,
-      },
+      creds: credentials,
     });
   }
 

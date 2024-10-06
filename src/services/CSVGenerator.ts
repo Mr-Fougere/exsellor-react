@@ -16,8 +16,8 @@ class CSVGenerator {
   private docParsedCount: number = 0;
   private docToParseCount: number = 0;
 
-  constructor() {
-    this.sellsy = new SellsyClient();
+  constructor(sellsy: SellsyClient) {
+    this.sellsy = sellsy
     this.exportArchivist = new ExportArchivist();
   }
 
