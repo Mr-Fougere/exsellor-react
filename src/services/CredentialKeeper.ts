@@ -31,6 +31,19 @@ class CredentialKeeper {
       userToken: "",
       userSecret: "",
     };
+    this.fetchSessionPin()
+    this.fetchCredentials();
+  }
+
+  private fetchSessionPin() {
+    const hashedPin = localStorage.getItem("hashedPin");
+    if (hashedPin) {
+      this.setHashedPin(hashedPin);
+    }
+  }
+
+  private saveSessionPin() {
+    localStorage.setItem("hashedPin", this.hashedPin);
   }
 
   private setStatus(newStatus: CredentialKeeperStatus) {
@@ -38,6 +51,11 @@ class CredentialKeeper {
     if (this.onStatusChange) {
       this.onStatusChange(newStatus);
     }
+  }
+
+  private setHashedPin(pin: string) {
+    this.hashedPin = pin;
+    this.saveSessionPin();
   }
 
   setOnStatusChangeCallback(callback: StatusChangeCallback) {
@@ -76,7 +94,7 @@ class CredentialKeeper {
             value + validTag,
             hashedPin
           );
-          this.hashedPin = hashedPin;
+          this.setHashedPin(hashedPin);
           this.encryptCredentials[key as keyof CredentialInputs] =
             encryptedValue;
           const hashedName = await hashData(key.toString());
@@ -155,12 +173,11 @@ class CredentialKeeper {
     if (!decryptedValue) {
       this.testPinCount++;
       if (this.testPinCount >= 3) {
-        this.testPinCount = 0;
         await this.reset();
       }
       return false;
     } else {
-      this.hashedPin = hashedPin;
+      this.setHashedPin(hashedPin);
       this.setStatus(CredentialKeeperStatus.ready);
       return true;
     }

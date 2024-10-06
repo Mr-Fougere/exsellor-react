@@ -30,10 +30,6 @@ function App() {
   });
 
   useEffect(() => {
-    credentialKeeper.fetchCredentials();
-  }, []);
-
-  useEffect(() => {
     switchCurrentPage();
   }, [status]);
 
