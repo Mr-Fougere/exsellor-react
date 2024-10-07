@@ -50,6 +50,10 @@ export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
     handleValidLengthPin();
   }, [pinDisplay]);
 
+  useEffect(() => {
+    window.focus();
+  }, []);
+
   const handleResetCreds = async () => {
     await credentialKeeper.reset();
   };
@@ -65,8 +69,7 @@ export const PinForm = ({ credentialKeeper, length = 4 }: PinFormProps) => {
           className="w-max inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-2 "
           onClick={handleResetCreds}
         >
-          {" "}
-          Réinitialiser mes identifiants{" "}
+          Réinitialiser mes identifiants
         </button>
       </div>
     </div>
