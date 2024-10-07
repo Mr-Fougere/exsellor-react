@@ -66,15 +66,19 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
 
     await estimateExport(formattedData)
       .then((estimation) => {
-        formattedData.estimatedTime = estimation.estimatedTime;
-        formattedData.docCount = estimation.docCount;
-        setExportInputs(formattedData);
-
-        setEstimating(false);
+        if (estimation.docCount === 0) {
+          alert("Aucun document de ce type sur cette période");
+        } else {
+          formattedData.estimatedTime = estimation.estimatedTime;
+          formattedData.docCount = estimation.docCount;
+          setExportInputs(formattedData);
+        }
       })
       .catch((error) => {
-        setEstimating(false);
         console.error(error);
+      })
+      .finally(() => {
+        setEstimating(false);
       });
   };
 
@@ -85,7 +89,7 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
       sellsyClient.current
         .getDocumentsInfos(data)
         .then((infos) => {
-          const docCount = infos.nbtotal;
+          const docCount = parseInt(infos.nbtotal);
           resolve({ docCount, estimatedTime: docCount * 2 });
         })
         .catch((error) => {

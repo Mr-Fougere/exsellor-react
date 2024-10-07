@@ -31,19 +31,7 @@ class CredentialKeeper {
       userToken: "",
       userSecret: "",
     };
-    this.fetchSessionPin()
     this.fetchCredentials();
-  }
-
-  private fetchSessionPin() {
-    const hashedPin = localStorage.getItem("hashedPin");
-    if (hashedPin) {
-      this.setHashedPin(hashedPin);
-    }
-  }
-
-  private saveSessionPin() {
-    localStorage.setItem("hashedPin", this.hashedPin);
   }
 
   private setStatus(newStatus: CredentialKeeperStatus) {
@@ -55,7 +43,6 @@ class CredentialKeeper {
 
   private setHashedPin(pin: string) {
     this.hashedPin = pin;
-    this.saveSessionPin();
   }
 
   setOnStatusChangeCallback(callback: StatusChangeCallback) {
