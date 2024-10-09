@@ -14,7 +14,7 @@ export const ArrowButton = ({ disabled, handleClick, direction }: Props) => {
       className={`px-2 py-1 border rounded 
             ${
               disabled
-                ? "bg-gray-200"
+                ? "bg-gray-200 text-white"
                 : "border-gray-300 hover:bg-gray-200 cursor-pointer"
             }
           `}

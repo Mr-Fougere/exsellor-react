@@ -30,9 +30,11 @@ export const ExportPage = ({ credentialKeeper }: Props) => {
 
   return (
     <main className="mx-auto p-4 flex justify-center items-start select-none space-x-4">
-      <ExportArchives exportInformations={exportInformations}></ExportArchives>
       {docTypePeriodDates ? (
         <>
+          <ExportArchives
+            exportInformations={exportInformations}
+          ></ExportArchives>
           {exportInformations ? (
             <ExportRecap
               sellsyClient={sellsyClient}
@@ -46,11 +48,11 @@ export const ExportPage = ({ credentialKeeper }: Props) => {
               docTypePeriodDates={docTypePeriodDates}
             />
           )}
+          <div className="w-1/5"></div>
         </>
       ) : (
-        <div>Chargement ...</div>
+        <div><i className="fa-solid fa-spinner fa-spin mr-2"></i>Chargement ...</div>
       )}
-      <div className="w-1/5"></div>
     </main>
   );
 };

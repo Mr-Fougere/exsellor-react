@@ -111,7 +111,7 @@ const MonthSelector = ({
             ${
               docTypePeriodDates.end.getMonth() > Number(monthIndex) &&
               docTypePeriodDates.end.getFullYear() === selectedYear
-                ? "bg-gray-300 text-white pointer-events-none"
+                ? "bg-gray-200 text-white pointer-events-none"
                 : isSelected(Number(monthIndex))
                 ? "bg-cyan-600 text-white"
                 : "bg-sky-50 text-black"
