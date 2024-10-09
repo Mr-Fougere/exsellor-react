@@ -21,6 +21,10 @@ class SellsyClient {
     });
   }
 
+  get isSetup(): boolean {    
+    return this.sellsy !== null;
+  }
+
   async getDocumentsInfos({
     docType,
     periodStartDate,
@@ -33,11 +37,65 @@ class SellsyClient {
     return infos;
   }
 
+  private getStoredDocTypesPeriodDates(): { [key: string]: PeriodDates } {
+    const storedDocTypesPeriodDates = localStorage.getItem("docTypesPeriodDates");
+    const parsedDocTypesPeriodDates: { [key: string]: {start: string, end: string} } =  storedDocTypesPeriodDates ? JSON.parse(storedDocTypesPeriodDates) : {};
+    const docTypesPeriodDates: { [key: string]: PeriodDates } = {};
+    for (const key in parsedDocTypesPeriodDates) {
+      docTypesPeriodDates[key] = {
+        start: new Date(parsedDocTypesPeriodDates[key].start),
+        end: new Date(parsedDocTypesPeriodDates[key].end),
+      };
+    }
+    return docTypesPeriodDates;
+  }
+
+  async getAllDocTypesPeriodDates(): Promise<{ [key: string]: PeriodDates }> {
+    const storedDocTypesPeriodDates = this.getStoredDocTypesPeriodDates();
+    if (Object.keys(storedDocTypesPeriodDates).length) {
+      return storedDocTypesPeriodDates;
+    }
+    const docTypes = Object.keys(DocType) as DocType[];
+    const docTypesPeriodDates: { [key: string]: PeriodDates } = {};
+
+    for (const docType of docTypes) {
+      const periodDates = await this.getDocTypePeriodDates(docType);
+      docTypesPeriodDates[docType] = periodDates;
+    }
+
+    localStorage.setItem("docTypesPeriodDates", JSON.stringify(docTypesPeriodDates));
+
+    return docTypesPeriodDates;
+  }
+
+  async getDocTypePeriodDates(docType: DocType): Promise<PeriodDates> {
+    const { documents: firstDocuments, infos: firstDocumentsInfos } = await this.getDocuments(
+      docType,
+      1,
+      1
+    );
+    const { documents: lastDocuments } = await this.getDocuments(
+      docType,
+      firstDocumentsInfos.nbpages,
+      1
+    );
+    
+    const firstKey = Object.keys(firstDocuments)[0];
+    const firstDocumentTypeDate = new Date(firstDocuments[firstKey].created);
+    const lastKey = Object.keys(lastDocuments)[0];
+    const lastDocumentTypeDate = new Date(lastDocuments[lastKey].created);
+
+    return {
+      start: firstDocumentTypeDate,
+      end: lastDocumentTypeDate,
+    };
+  }
+
   async getDocuments(
     docType: DocType,
     pagenum: number = 1,
     nbperpage: number = 1,
-    periodDates: PeriodDates
+    periodDates: PeriodDates = { start: new Date(1), end: new Date() }
   ): Promise<DocumentsOutput> {
     const convertedDates = {
       start: periodDates.start.getTime() / 1000,

@@ -12,22 +12,25 @@ import MonthSelector from "../reusable/MonthSelector";
 import ExportArchivist from "../../services/ExportArchivist";
 import { bakeFileName } from "../../libs/Helpers";
 import { DocType } from "../../interfaces/enum";
+import { PeriodDates } from "../../interfaces/sellsy.interface";
 
 type ExportFormProps = {
   setExportInputs: Function;
   sellsyClient: React.MutableRefObject<SellsyClient>;
+  docTypePeriodDates: { [key: string]: PeriodDates };
 };
 
-const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
+const today = new Date();
+const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
+const formattedFirstDay = formatInputDate(firstDayOfMonth);
+const formattedToday = formatInputDate(today);
+
+const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: ExportFormProps) => {
   const { register, handleSubmit, setValue, watch } = useForm<ExportInputs>();
   const exportArchivist = useRef<ExportArchivist>(new ExportArchivist());
 
   const [estimating, setEstimating] = useState<boolean>(false);
   const [archiveUrl, setArchiveUrl] = useState<string | undefined>(undefined);
-  const today = new Date();
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
-  const formattedFirstDay = formatInputDate(firstDayOfMonth);
-  const formattedToday = formatInputDate(today);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = new Date(event.target.value);
@@ -147,13 +150,14 @@ const ExportForm = ({ setExportInputs, sellsyClient }: ExportFormProps) => {
         >
           Choisissez une période
         </label>
-        <MonthSelector
-          setDates={setDates}
-          selectedDates={{
-            start: new Date(periodStartInputDate),
-            end: new Date(periodEndInputDate),
-          }}
-        />
+          <MonthSelector
+            docTypePeriodDates={docTypePeriodDates[docType]}
+            setDates={setDates}
+            selectedDates={{
+              start: new Date(periodStartInputDate),
+              end: new Date(periodEndInputDate),
+            }}
+          />
       </div>
 
       <div className="flex flex-row space-x-2 px-4">

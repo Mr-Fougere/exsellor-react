@@ -16,5 +16,3 @@ export const csvHeaders = [
   "total_sales",
   "Net Quantity",
 ];
-
-export const firstSellsyUsageYear = 2023;

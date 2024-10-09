@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Month } from "../../interfaces/enum";
 import { ArrowButton } from "./ArrowButton";
-import { firstSellsyUsageYear } from "../../constant";
+import { PeriodDates } from "../../interfaces/sellsy.interface";
 
 type MonthSelectorProps = {
+  docTypePeriodDates: PeriodDates;
   setDates: Function;
   selectedDates?: {
     start: Date;
@@ -11,23 +12,28 @@ type MonthSelectorProps = {
   };
 };
 
-const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
+const MonthSelector = ({
+  setDates,
+  selectedDates,
+  docTypePeriodDates,
+}: MonthSelectorProps) => {
   const [months, setMonths] = useState<{ [key: number]: string }>({});
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
   );
 
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-
   const getFirstAndLastDays = (month: number) => {
     const firstDay = new Date(selectedYear, month, 1);
     const lastDay = new Date(
       selectedYear,
-      month + (month === currentMonth && selectedYear === currentYear ? 0 : 1),
-      month === currentMonth && selectedYear === currentYear
-        ? today.getDate()
+      month +
+        (month === docTypePeriodDates.start.getMonth() &&
+        selectedYear === docTypePeriodDates.start.getFullYear()
+          ? 0
+          : 1),
+      month === docTypePeriodDates.start.getMonth() &&
+      selectedYear === docTypePeriodDates.start.getFullYear()
+        ? docTypePeriodDates.start.getDate()
         : 0
     );
     return { start: firstDay, end: lastDay };
@@ -51,37 +57,49 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
     return areStartTimesEqual && areEndTimesEqual;
   };
 
-  useEffect(() => {
-    const availableMonths: Record<string, string> = {};
-    for (
-      let i = 0;
-      i < (currentYear === selectedYear ? currentMonth + 1 : 12);
-      i++
-    ) {
-      availableMonths[i] = Object.values(Month)[i];
-    }
-    setMonths(availableMonths);
-  }, [selectedYear]); // Update months when the selected year changes
-
   const handlePrevYear = () => {
-    if (selectedYear > firstSellsyUsageYear) {
+    if (selectedYear > docTypePeriodDates?.end?.getFullYear()) {
       setSelectedYear(selectedYear - 1);
     }
   };
 
   const handleNextYear = () => {
-    if (selectedYear < currentYear) {
+    if (selectedYear < docTypePeriodDates.start.getFullYear()) {
       setSelectedYear(selectedYear + 1);
     }
   };
 
-  const nextYearDisabled = selectedYear === currentYear;
+  const nextYearDisabled =
+    selectedYear === docTypePeriodDates.start.getFullYear();
+  const previousYearDisabled =
+    selectedYear === docTypePeriodDates.end.getFullYear();
 
-  const previousYearDisabled = selectedYear === firstSellsyUsageYear;
+  useEffect(() => {
+    const availableMonths: Record<string, string> = {};
+    for (
+      let i = 0;
+      i <
+      (selectedYear === docTypePeriodDates.start.getFullYear()
+        ? docTypePeriodDates.start.getMonth() + 1
+        : 12);
+      i++
+    ) {
+      availableMonths[i] = Object.values(Month)[i];
+    }
+    setMonths(availableMonths);
+  }, [selectedYear]);
+
+  useEffect(() => {
+    setSelectedYear(docTypePeriodDates.start.getFullYear());
+  }, [docTypePeriodDates]);
 
   return (
     <div className="flex flex-row items-center justify-center mt-2 px-2">
-      <ArrowButton direction="left" handleClick={handlePrevYear} disabled={previousYearDisabled}/>
+      <ArrowButton
+        direction="left"
+        handleClick={handlePrevYear}
+        disabled={previousYearDisabled}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 px-2 flex-1">
         {Object.entries(months).map(([monthIndex, monthName]) => (
@@ -89,11 +107,16 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
             type="button"
             key={monthIndex}
             onClick={() => setDates(getFirstAndLastDays(Number(monthIndex)))}
-            className={`rounded px-4 py-2 hover:bg-sky-200 border border-gray-300 rounded ${
-              isSelected(Number(monthIndex))
+            className={`rounded p-2 hover:bg-sky-200 border border-gray-300 rounded
+            ${
+              docTypePeriodDates.end.getMonth() > Number(monthIndex) &&
+              docTypePeriodDates.end.getFullYear() === selectedYear
+                ? "bg-gray-300 text-white pointer-events-none"
+                : isSelected(Number(monthIndex))
                 ? "bg-cyan-600 text-white"
                 : "bg-sky-50 text-black"
-            }`}
+            } 
+            `}
           >
             <div>{monthName}</div>
             <div>{selectedYear}</div>
@@ -101,7 +124,11 @@ const MonthSelector = ({ setDates, selectedDates }: MonthSelectorProps) => {
         ))}
       </div>
 
-      <ArrowButton direction="right" handleClick={handleNextYear} disabled={nextYearDisabled}/>
+      <ArrowButton
+        direction="right"
+        handleClick={handleNextYear}
+        disabled={nextYearDisabled}
+      />
     </div>
   );
 };
