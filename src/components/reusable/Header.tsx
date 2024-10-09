@@ -10,7 +10,7 @@ export default function Header() {
         <span className="text-2l font-semibold text-gray-700 mr-1">
           Exsellor
         </span>
-        <span className="text-gray-400 text-xs"> v2.5.2 </span>
+        <span className="text-gray-400 text-xs"> v2.6.0 </span>
       </div>
       <a
         className="text-sm opacity-50"
