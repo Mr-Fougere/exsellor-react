@@ -2,27 +2,27 @@ import ExportArchives from "./ExportArchives";
 import ExportForm from "./ExportForm";
 import { ExportInformations } from "../../interfaces/export.interface";
 import CredentialKeeper from "../../services/CredentialKeeper";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import SellsyClient from "../../services/SellsyClient";
 import ExportRecap from "./ExportRecap";
 import { PeriodDates } from "../../interfaces/sellsy.interface";
 
 type Props = {
   credentialKeeper: CredentialKeeper;
+  sellsyClient: SellsyClient
 };
 
-export const ExportPage = ({ credentialKeeper }: Props) => {
+export const ExportPage = ({ credentialKeeper, sellsyClient}: Props) => {
   const [exportInformations, setExportInformations] =
     useState<ExportInformations>();
-  const sellsyClient = useRef<SellsyClient>(new SellsyClient());
   const [docTypePeriodDates, setDocTypePeriodDates] = useState<{
     [key: string]: PeriodDates;
   }>();
 
   useEffect(() => {
     credentialKeeper.decryptedCredentials().then((credentials) => {
-      sellsyClient.current.setup(credentials);
-      sellsyClient.current.getAllDocTypesPeriodDates().then((periodDates) => {
+      sellsyClient.setup(credentials);
+      sellsyClient.getAllDocTypesPeriodDates().then((periodDates) => {
         setDocTypePeriodDates(periodDates);
       });
     });
