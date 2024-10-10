@@ -16,7 +16,7 @@ import { PeriodDates } from "../../interfaces/sellsy.interface";
 
 type ExportFormProps = {
   setExportInputs: Function;
-  sellsyClient: React.MutableRefObject<SellsyClient>;
+  sellsyClient: SellsyClient;
   docTypePeriodDates: { [key: string]: PeriodDates };
 };
 
@@ -89,7 +89,7 @@ const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: Expor
     data: ExportInformations
   ): Promise<ExportEstimation> => {
     return new Promise((resolve, reject) => {
-      sellsyClient.current
+      sellsyClient
         .getDocumentsInfos(data)
         .then((infos) => {
           const docCount = parseInt(infos.nbtotal);

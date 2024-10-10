@@ -12,7 +12,7 @@ import { formatDispayedDate, formatDisplayedTime } from "../../libs/DateFormatte
 type ExportRecapProps = {
   exportInformations: ExportInformations;
   setExportInputs: Function;
-  sellsyClient: React.MutableRefObject<SellsyClient>;
+  sellsyClient: SellsyClient;
 };
 
 const ExportRecap = ({
@@ -24,7 +24,7 @@ const ExportRecap = ({
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const csvGenerator = useRef(new CSVGenerator(sellsyClient.current));
+  const csvGenerator = useRef(new CSVGenerator(sellsyClient));
 
   const handleCancel = () => {
     csvGenerator.current.cancelExport();
