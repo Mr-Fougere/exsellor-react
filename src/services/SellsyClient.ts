@@ -42,11 +42,12 @@ class SellsyClient {
     documentType,
     periodStartDate,
     periodEndDate,
+    steps
   }: ExportInformations): Promise<any> {
     const { infos } = await this.getDocuments(documentType, 1, 1, {
       start: periodStartDate,
       end: periodEndDate,
-    });
+    },steps );
     return infos;
   }
 
@@ -131,7 +132,7 @@ class SellsyClient {
     };
   }
 
-  private defaultDocTypeSteps(documentType: DocumentType) {
+  private defaultDocTypeSteps(documentType: DocumentType): DocumentSteps {
     let stepEnum = null;
     switch (documentType) {
       case DocumentType.Order:

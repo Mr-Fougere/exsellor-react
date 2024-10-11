@@ -1,8 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { loadYamlFile } from './loadYaml';
 
-const frTranslations = loadYamlFile('./src/locales/fr.yml'); 
+import frTranslations from './locales/fr.json';
 
 i18n
   .use(initReactI18next) 

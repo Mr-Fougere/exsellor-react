@@ -20,5 +20,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "background.ts"]
+  "include": ["src", "background.ts", "i18n.ts", "loadYaml.ts"]
 }

@@ -1,4 +1,4 @@
-import { CSV_SEPARATOR, csvHeaders } from "../constant";
+import { CSV_HEADERS, CSV_SEPARATOR } from "../constant";
 import { DocumentType } from "../interfaces/enum";
 import {
   Document,
@@ -40,7 +40,9 @@ class CSVGenerator {
   }
 
   private parseDocumentRows(doc: Document): FormattedRow[] {
-    const orderName = doc.ident;
+    const documentName = doc.ident;
+    const documentStep = doc.step;
+
     const billingCountry = this.findCountryAddress(doc.thirdAddress);
     const customerName = doc.thirdName;
     const shippingCountry = this.findCountryAddress(doc.shipAddress);
@@ -65,7 +67,8 @@ class CSVGenerator {
       formattedRows.push([
         "B2B",
         docDate,
-        orderName,
+        documentName,
+        documentStep,
         billingCountry,
         customerName,
         shippingCountry,
@@ -146,7 +149,7 @@ class CSVGenerator {
     }
 
     if (!this.isCancelled) {
-      const rows: FormattedRow[] = [csvHeaders];
+      const rows: FormattedRow[] = [CSV_HEADERS];
 
       rows.push(...documentRowParsed.flat(1));
       const mappedRows = rows.map((row) => row.join(CSV_SEPARATOR)).join("\n");

@@ -22,7 +22,7 @@ export enum Month {
   July = "july",
   August = "august",
   September = "september",
-  October = "octobrer",
+  October = "october",
   November = "november",
   December = "december",
 }

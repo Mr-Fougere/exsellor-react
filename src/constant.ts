@@ -1,7 +1,8 @@
-export const csvHeaders = [
+export const CSV_HEADERS = [
   "Shop",
   "day",
   "order_name",
+  "order_status",
   "billing_country",
   "customer_name",
   "shipping_country",

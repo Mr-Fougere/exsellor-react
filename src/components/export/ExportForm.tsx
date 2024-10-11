@@ -10,10 +10,10 @@ import SellsyClient from "../../services/SellsyClient";
 import MonthSelector from "../reusable/MonthSelector";
 import ExportArchivist from "../../services/ExportArchivist";
 import { bakeFileName } from "../../libs/Helpers";
-import { DocumentType } from "../../interfaces/enum";
+import { DocumentType, InvoiceStep } from "../../interfaces/enum";
 import { PeriodDates } from "../../interfaces/sellsy.interface";
-import StepSelector from "../reusable/StepSelector";
 import DocumentTypeRadioGroup from "../reusable/DocumentTypeRadioGroup";
+import StepMultiSelector from "../reusable/StepMultiSelector";
 
 type ExportFormProps = {
   setExportInputs: Function;
@@ -109,6 +109,7 @@ const ExportForm = ({
   const periodStartInputDate = watch("periodStartInputDate", formattedFirstDay);
   const periodEndInputDate = watch("periodEndInputDate", formattedToday);
   const documentType = watch("documentType", DocumentType.Invoice);
+  const documentSteps = watch("steps", Object.values(InvoiceStep));
 
   const setDates = ({ start, end }: { start: Date; end: Date }) => {
     setValue("periodStartInputDate", formatInputDate(start));
@@ -134,7 +135,7 @@ const ExportForm = ({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 w-2/5">
       <div>
         <label
-          htmlFor="choix"
+          htmlFor="documentType"
           className="block text-sm font-bold text-gray-700"
         >
           Choisissez un type de document
@@ -155,7 +156,13 @@ const ExportForm = ({
         >
           Choisissez les status des documents
         </label>
-        <StepSelector documentType={documentType}  />
+        <StepMultiSelector
+          name="steps"
+          id="steps"
+          documentType={documentType}
+          register={register}
+          selectedValues={documentSteps}
+        />
       </div>
 
       <div>

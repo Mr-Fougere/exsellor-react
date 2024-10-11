@@ -33,6 +33,7 @@ export interface DocumentRow {
 
 export interface Document {
   ident: string;
+  step: string,
   thirdAddress: SellsyAddress;
   thirdName: string;
   shipAddress: SellsyAddress;

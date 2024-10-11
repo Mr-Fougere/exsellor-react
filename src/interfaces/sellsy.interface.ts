@@ -20,4 +20,6 @@ export interface DocumentsOutput {
   status: string;
 }
 
-export type DocumentSteps = InvoiceStep[] | CreditNoteStep[] | OrderStep[] | DeliveryStep[] | DraftStep[];
+export type DocumentStep = InvoiceStep | CreditNoteStep | OrderStep | DeliveryStep | DraftStep
+
+export type DocumentSteps = DocumentStep[]
