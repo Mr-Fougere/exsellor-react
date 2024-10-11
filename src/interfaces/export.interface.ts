@@ -1,9 +1,11 @@
-import { DocType } from "./enum";
+import { DocumentType } from "./enum";
+import { DocumentSteps } from "./sellsy.interface";
 
 export interface ExportInputs {
-  docType: DocType;
+  documentType: DocumentType;
   periodStartInputDate: string;
   periodEndInputDate: string;
+  steps?: DocumentSteps
 }
 
 export interface ExportInformations extends ExportInputs {
@@ -11,7 +13,7 @@ export interface ExportInformations extends ExportInputs {
   periodEndDate: Date;
   estimatedTime?: number; // in seconds
   exportStartDate?: Date;
-  docCount?: number;
+  documentCount?: number;
 }
 
 

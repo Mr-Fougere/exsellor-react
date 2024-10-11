@@ -45,11 +45,11 @@ export const CredentialForm = ({ credentialKeeper }: CredentialFormProps) => {
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 w-2/5">
-          {Object.keys(CredentialName).map((key) => (
+          {Object.values(CredentialName).map((value) => (
             <CredentialInput
-              title={CredentialName[key as keyof typeof CredentialName]}
-              name={key}
-              id={key}
+              title={value}
+              name={value}
+              id={value}
               register={register}
               defaultValue=""
             />

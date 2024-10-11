@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Month } from "../../interfaces/enum";
 import { ArrowButton } from "./ArrowButton";
 import { PeriodDates } from "../../interfaces/sellsy.interface";
+import { useTranslation } from "react-i18next";
 
 type MonthSelectorProps = {
-  docTypePeriodDates: PeriodDates;
+  documentTypePeriodDates: PeriodDates;
   setDates: Function;
   selectedDates?: {
     start: Date;
@@ -15,8 +16,10 @@ type MonthSelectorProps = {
 const MonthSelector = ({
   setDates,
   selectedDates,
-  docTypePeriodDates,
+  documentTypePeriodDates,
 }: MonthSelectorProps) => {
+  const { t } = useTranslation('', { keyPrefix: 'enum.month' });
+
   const [months, setMonths] = useState<{ [key: number]: string }>({});
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
@@ -27,13 +30,13 @@ const MonthSelector = ({
     const lastDay = new Date(
       selectedYear,
       month +
-        (month === docTypePeriodDates.start.getMonth() &&
-        selectedYear === docTypePeriodDates.start.getFullYear()
+        (month === documentTypePeriodDates.start.getMonth() &&
+        selectedYear === documentTypePeriodDates.start.getFullYear()
           ? 0
           : 1),
-      month === docTypePeriodDates.start.getMonth() &&
-      selectedYear === docTypePeriodDates.start.getFullYear()
-        ? docTypePeriodDates.start.getDate()
+      month === documentTypePeriodDates.start.getMonth() &&
+      selectedYear === documentTypePeriodDates.start.getFullYear()
+        ? documentTypePeriodDates.start.getDate()
         : 0
     );
     return { start: firstDay, end: lastDay };
@@ -58,29 +61,29 @@ const MonthSelector = ({
   };
 
   const handlePrevYear = () => {
-    if (selectedYear > docTypePeriodDates?.end?.getFullYear()) {
+    if (selectedYear > documentTypePeriodDates?.end?.getFullYear()) {
       setSelectedYear(selectedYear - 1);
     }
   };
 
   const handleNextYear = () => {
-    if (selectedYear < docTypePeriodDates.start.getFullYear()) {
+    if (selectedYear < documentTypePeriodDates.start.getFullYear()) {
       setSelectedYear(selectedYear + 1);
     }
   };
 
   const nextYearDisabled =
-    selectedYear === docTypePeriodDates.start.getFullYear();
+    selectedYear === documentTypePeriodDates.start.getFullYear();
   const previousYearDisabled =
-    selectedYear === docTypePeriodDates.end.getFullYear();
+    selectedYear === documentTypePeriodDates.end.getFullYear();
 
   useEffect(() => {
     const availableMonths: Record<string, string> = {};
     for (
       let i = 0;
       i <
-      (selectedYear === docTypePeriodDates.start.getFullYear()
-        ? docTypePeriodDates.start.getMonth() + 1
+      (selectedYear === documentTypePeriodDates.start.getFullYear()
+        ? documentTypePeriodDates.start.getMonth() + 1
         : 12);
       i++
     ) {
@@ -90,8 +93,8 @@ const MonthSelector = ({
   }, [selectedYear]);
 
   useEffect(() => {
-    setSelectedYear(docTypePeriodDates.start.getFullYear());
-  }, [docTypePeriodDates]);
+    setSelectedYear(documentTypePeriodDates.start.getFullYear());
+  }, [documentTypePeriodDates]);
 
   return (
     <div className="flex flex-row items-center justify-center mt-2 px-2">
@@ -109,8 +112,8 @@ const MonthSelector = ({
             onClick={() => setDates(getFirstAndLastDays(Number(monthIndex)))}
             className={`rounded p-2 hover:bg-sky-200 border border-gray-300 rounded
             ${
-              docTypePeriodDates.end.getMonth() > Number(monthIndex) &&
-              docTypePeriodDates.end.getFullYear() === selectedYear
+              documentTypePeriodDates.end.getMonth() > Number(monthIndex) &&
+              documentTypePeriodDates.end.getFullYear() === selectedYear
                 ? "bg-gray-200 text-white pointer-events-none"
                 : isSelected(Number(monthIndex))
                 ? "bg-cyan-600 text-white"
@@ -118,7 +121,7 @@ const MonthSelector = ({
             } 
             `}
           >
-            <div>{monthName}</div>
+            <div>{t(monthName)}</div>
             <div>{selectedYear}</div>
           </button>
         ))}

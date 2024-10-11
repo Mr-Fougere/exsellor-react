@@ -1,3 +1,4 @@
+import { log } from "node:console";
 import {
   CredentialInputs,
   CredentialKeeperStatus,
@@ -22,11 +23,11 @@ class CredentialKeeper {
   private onStatusChange: StatusChangeCallback | null = null;
 
   constructor() {
-    this.status = CredentialKeeperStatus.waitingCredentials;
+    this.status = CredentialKeeperStatus.WaitingCredentials;
     this.testPinCount = 0;
     this.hashedPin = "";
     this.encryptCredentials = {
-      consumerKey: "",
+      consumerToken: "",
       consumerSecret: "",
       userToken: "",
       userSecret: "",
@@ -51,8 +52,8 @@ class CredentialKeeper {
 
   public async decryptedCredentials(): Promise<CredentialInputs> {
     return {
-      consumerKey: await this.decryptData(
-        this.encryptCredentials.consumerKey,
+      consumerToken: await this.decryptData(
+        this.encryptCredentials.consumerToken,
         this.hashedPin
       ),
       consumerSecret: await this.decryptData(
@@ -72,23 +73,28 @@ class CredentialKeeper {
 
   public async secure(credentialInputs: CredentialInputs): Promise<string[]> {
     const pin = this.randomPin();
+    
     await Promise.all(
-      Object.keys(CredentialName).map(async (key) => {
-        const value = credentialInputs[key as keyof CredentialInputs];
-        if (value) {
+      Object.values(CredentialName).map(async (credentialName) => {
+        
+        const credentialValue = credentialInputs[credentialName].trim();
+
+        if (credentialValue) {
           const hashedPin = await hashData(pin.join(""));
           const encryptedValue = await this.encryptData(
-            value + validTag,
+            credentialValue + validTag,
             hashedPin
           );
           this.setHashedPin(hashedPin);
-          this.encryptCredentials[key as keyof CredentialInputs] =
+          
+          this.encryptCredentials[credentialName] =
             encryptedValue;
-          const hashedName = await hashData(key.toString());
+          const hashedName = await hashData(credentialName.toString());
           localStorage.setItem(`credential-${hashedName}`, encryptedValue);
         }
       })
     );
+    
     return pin;
   }
 
@@ -101,7 +107,7 @@ class CredentialKeeper {
   }
 
   public confirmMemorizedPin() {
-    this.setStatus(CredentialKeeperStatus.requirePin);
+    this.setStatus(CredentialKeeperStatus.RequirePin);
   }
 
   public async reset() {
@@ -113,13 +119,13 @@ class CredentialKeeper {
       localStorage.removeItem(key);
     }
 
-    this.encryptCredentials.consumerKey = "";
+    this.encryptCredentials.consumerToken = "";
     this.encryptCredentials.consumerSecret = "";
     this.encryptCredentials.userToken = "";
     this.encryptCredentials.userSecret = "";
     this.hashedPin = "";
 
-    this.setStatus(CredentialKeeperStatus.waitingCredentials);
+    this.setStatus(CredentialKeeperStatus.WaitingCredentials);
   }
 
   private randomPin(length: number = 4): string[] {
@@ -130,30 +136,30 @@ class CredentialKeeper {
 
   public async fetchCredentials(): Promise<void> {
     await Promise.all(
-      Object.keys(CredentialName).map(async (key) => {
-        const hashedName = await hashData(key);
-        const encryptedValue = localStorage.getItem(`credential-${hashedName}`);
+      Object.values(CredentialName).map(async (credentialName) => {
+        const hashedName = await hashData(credentialName);
+        const encryptedValue = localStorage.getItem(`credential-${hashedName}`);        
 
         if (encryptedValue) {
-          this.encryptCredentials[key as CredentialKey] = encryptedValue;
+          this.encryptCredentials[credentialName] = encryptedValue;
         }
       })
     );
     if (this.validEncryptedCredentials()) {
       if (!this.hashedPin) {
-        this.setStatus(CredentialKeeperStatus.requirePin);
+        this.setStatus(CredentialKeeperStatus.RequirePin);
       } else {
-        this.setStatus(CredentialKeeperStatus.ready);
+        this.setStatus(CredentialKeeperStatus.Ready);
       }
     } else {
-      this.setStatus(CredentialKeeperStatus.waitingCredentials);
+      this.setStatus(CredentialKeeperStatus.WaitingCredentials);
     }
   }
 
   public async testPin(pin: string): Promise<boolean> {
     const hashedPin = await hashData(pin);
     const decryptedValue = await this.decryptData(
-      this.encryptCredentials.consumerKey,
+      this.encryptCredentials.consumerToken,
       hashedPin
     );
 
@@ -165,7 +171,7 @@ class CredentialKeeper {
       return false;
     } else {
       this.setHashedPin(hashedPin);
-      this.setStatus(CredentialKeeperStatus.ready);
+      this.setStatus(CredentialKeeperStatus.Ready);
       return true;
     }
   }
@@ -173,7 +179,7 @@ class CredentialKeeper {
   private async decryptData(
     encryptedData: string,
     hashedPin: string
-  ): Promise<string> {
+  ): Promise<string> {    
     const [encryptedDataBase64, ivBase64] = encryptedData.split(".");
     const key = await this.generateKeyFromPin(hashedPin);
     const encryptedBuffer = b64toab(encryptedDataBase64);

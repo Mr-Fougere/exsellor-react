@@ -7,17 +7,18 @@ import {
 import { formatInputDate } from "../../libs/DateFormatter";
 import { useEffect, useRef, useState } from "react";
 import SellsyClient from "../../services/SellsyClient";
-import DocTypeRadioGroup from "../reusable/DocTypeRadioGroup";
 import MonthSelector from "../reusable/MonthSelector";
 import ExportArchivist from "../../services/ExportArchivist";
 import { bakeFileName } from "../../libs/Helpers";
-import { DocType } from "../../interfaces/enum";
+import { DocumentType } from "../../interfaces/enum";
 import { PeriodDates } from "../../interfaces/sellsy.interface";
+import StepSelector from "../reusable/StepSelector";
+import DocumentTypeRadioGroup from "../reusable/DocumentTypeRadioGroup";
 
 type ExportFormProps = {
   setExportInputs: Function;
   sellsyClient: SellsyClient;
-  docTypePeriodDates: { [key: string]: PeriodDates };
+  documentTypePeriodDates: { [key in DocumentType]: PeriodDates };
 };
 
 const today = new Date();
@@ -25,7 +26,11 @@ const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth());
 const formattedFirstDay = formatInputDate(firstDayOfMonth);
 const formattedToday = formatInputDate(today);
 
-const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: ExportFormProps) => {
+const ExportForm = ({
+  setExportInputs,
+  sellsyClient,
+  documentTypePeriodDates,
+}: ExportFormProps) => {
   const { register, handleSubmit, setValue, watch } = useForm<ExportInputs>();
   const exportArchivist = useRef<ExportArchivist>(new ExportArchivist());
 
@@ -73,7 +78,7 @@ const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: Expor
           alert("Aucun document de ce type sur cette période");
         } else {
           formattedData.estimatedTime = estimation.estimatedTime;
-          formattedData.docCount = estimation.docCount;
+          formattedData.documentCount = estimation.docCount;
           setExportInputs(formattedData);
         }
       })
@@ -103,7 +108,7 @@ const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: Expor
 
   const periodStartInputDate = watch("periodStartInputDate", formattedFirstDay);
   const periodEndInputDate = watch("periodEndInputDate", formattedToday);
-  const docType = watch("docType", "invoice" as DocType);
+  const documentType = watch("documentType", DocumentType.Invoice);
 
   const setDates = ({ start, end }: { start: Date; end: Date }) => {
     setValue("periodStartInputDate", formatInputDate(start));
@@ -111,7 +116,7 @@ const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: Expor
   };
 
   const filename = bakeFileName(
-    docType,
+    documentType,
     new Date(periodStartInputDate),
     new Date(periodEndInputDate)
   );
@@ -134,13 +139,23 @@ const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: Expor
         >
           Choisissez un type de document
         </label>
-        <DocTypeRadioGroup
-          name="docType"
-          id="doc-type"
+        <DocumentTypeRadioGroup
+          name="documentType"
+          id="doctype"
           requiredMessage="required"
           register={register}
-          selectedValue={docType}
-        ></DocTypeRadioGroup>
+          selectedValue={documentType}
+        ></DocumentTypeRadioGroup>
+      </div>
+
+      <div>
+        <label
+          htmlFor="choix"
+          className="block text-sm font-bold text-gray-700"
+        >
+          Choisissez les status des documents
+        </label>
+        <StepSelector documentType={documentType}  />
       </div>
 
       <div>
@@ -150,14 +165,14 @@ const ExportForm = ({ setExportInputs, sellsyClient, docTypePeriodDates }: Expor
         >
           Choisissez une période
         </label>
-          <MonthSelector
-            docTypePeriodDates={docTypePeriodDates[docType]}
-            setDates={setDates}
-            selectedDates={{
-              start: new Date(periodStartInputDate),
-              end: new Date(periodEndInputDate),
-            }}
-          />
+        <MonthSelector
+          documentTypePeriodDates={documentTypePeriodDates[documentType]}
+          setDates={setDates}
+          selectedDates={{
+            start: new Date(periodStartInputDate),
+            end: new Date(periodEndInputDate),
+          }}
+        />
       </div>
 
       <div className="flex flex-row space-x-2 px-4">

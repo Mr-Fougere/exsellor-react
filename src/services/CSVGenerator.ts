@@ -1,5 +1,5 @@
-import { csvHeaders } from "../constant";
-import { DocType } from "../interfaces/enum";
+import { CSV_SEPARATOR, csvHeaders } from "../constant";
+import { DocumentType } from "../interfaces/enum";
 import {
   Document,
   ExportInformations,
@@ -91,13 +91,13 @@ class CSVGenerator {
 
   private async fetchDocumentInformations(
     page: number,
-    docType: DocType,
+    documentType: DocumentType,
     dates: { start: Date; end: Date }
   ): Promise<FormattedRow[]> {
     const parsedRows: FormattedRow[] = [];
 
     const { documents } = await this.sellsy.getDocuments(
-      docType,
+      documentType,
       page,
       100,
       dates
@@ -108,7 +108,7 @@ class CSVGenerator {
         return []; // Stop fetching further documents
       }
 
-      const doc = await this.sellsy.getDocument(docType, docId);
+      const doc = await this.sellsy.getDocument(documentType, docId);
       parsedRows.push(...this.parseDocumentRows(doc));
       this.docParsedCount++;
     }
@@ -123,10 +123,10 @@ class CSVGenerator {
   public async generateCSV(
     exportInformations: ExportInformations
   ): Promise<{ archived: boolean; downloaded: boolean }> {
-    this.docToParseCount = exportInformations.docCount || 1;
+    this.docToParseCount = exportInformations.documentCount || 1;
 
     const documentRowParsed: FormattedRow[][] = [];
-    const nbPages = Math.ceil(exportInformations.docCount || 1 / 100);
+    const nbPages = Math.ceil(exportInformations.documentCount || 1 / 100);
 
     for (let pageIndex = 1; pageIndex <= nbPages; pageIndex++) {
       if (this.isCancelled) {
@@ -136,7 +136,7 @@ class CSVGenerator {
       documentRowParsed.push(
         await this.fetchDocumentInformations(
           pageIndex,
-          exportInformations.docType,
+          exportInformations.documentType,
           {
             start: exportInformations.periodStartDate,
             end: exportInformations.periodEndDate,
@@ -149,8 +149,8 @@ class CSVGenerator {
       const rows: FormattedRow[] = [csvHeaders];
 
       rows.push(...documentRowParsed.flat(1));
-      const mappedRows = rows.map((row) => row.join(",")).join("\n");
-      const exportName = bakeFileName(exportInformations.docType,exportInformations.periodStartDate,exportInformations.periodEndDate)
+      const mappedRows = rows.map((row) => row.join(CSV_SEPARATOR)).join("\n");
+      const exportName = bakeFileName(exportInformations.documentType,exportInformations.periodStartDate,exportInformations.periodEndDate)
       const archived = this.exportArchivist.archive(mappedRows, exportName);
       const downloaded = this.downloadCSV(mappedRows, exportName);
       return { archived, downloaded };

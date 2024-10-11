@@ -1,28 +1,69 @@
-export enum DocType {
-  invoice = "Facture",
-  delivery = "Bon de livraison",
-  creditnote = "Avoir",
-  order = "Bon de commande",
+export enum DocumentType {
+  Invoice = "invoice",
+  Delivery = "delivery",
+  CreditNote = "creditnote",
+  Order = "order",
 }
 
-export enum DocTypeIcon {
-  invoice = "fa-file",
-  delivery = "fa-truck",
-  creditnote = "fa-dollar-sign",
-  order = "fa-box",
+export enum DocumentFontAwesomeIcon {
+  Invoice = "fa-file",
+  Delivery = "fa-truck",
+  CreditNote = "fa-dollar-sign",
+  Order = "fa-box",
 }
 
 export enum Month {
-  january = "Janvier",
-  february = "Février",
-  march = "Mars",
-  april = "Avril",
-  may = "Mai",
-  june = "Juin",
-  july = "Juillet",
-  august = "Août",
-  september = "Septembre",
-  october = "Octobre",
-  november = "Novembre",
-  december = "Décembre",
+  January = "january",
+  February = "february",
+  March = "march",
+  April = "april",
+  May = "may",
+  June = "june",
+  July = "july",
+  August = "august",
+  September = "september",
+  October = "octobrer",
+  November = "november",
+  December = "december",
+}
+
+export enum InvoiceStep {
+  Draft = "draft",
+  Due = "due",
+  Paid = "paid",
+  PayInProgress = "payinprogress",
+  Cancelled = "cancelled",
+  Late = "late",
+}
+
+export enum CreditNoteStep {
+  Draft = "draft",
+  Stored = "stored",
+  PartialSpend = "partialspend",
+  Spent = "spent",
+  Cancelled = "cancelled"
+}
+
+export enum OrderStep {
+  Draft = "draft",
+  Sent = "sent",
+  Read = "read",
+  Accepted = "accepted",
+  Expired = "expired",
+  Advanced  = "advanced",
+  PartialInvoiced   = "partialinvoiced",
+  Invoiced  = "invoiced",
+  Cancelled = "cancelled"
+}
+
+export enum DeliveryStep {
+  Draft = "draft",
+  Sent = "sent",
+  Read = "read",
+  PartialInvoiced = "partialinvoiced",
+  Invoiced = "invoiced",
+}
+
+export enum DraftStep {
+  Draft = "draft",
 }

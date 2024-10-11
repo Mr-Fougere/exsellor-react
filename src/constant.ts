@@ -16,3 +16,6 @@ export const csvHeaders = [
   "total_sales",
   "Net Quantity",
 ];
+
+
+export const CSV_SEPARATOR = "|";

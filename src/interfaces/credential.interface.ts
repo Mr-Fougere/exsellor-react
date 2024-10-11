@@ -1,23 +1,23 @@
 export enum CredentialName {
-  consumerKey = "Consumer Key",
-  consumerSecret = "Consumer Secret",
-  userToken = "User Token",
-  userSecret = "User Secret",
+  ConsumerToken = "consumerToken",
+  ConsumerSecret = "consumerSecret",
+  UserToken = "userToken",
+  UserSecret = "userSecret",
 }
 
 export type CredentialKey = keyof CredentialInputs;
 
 export interface CredentialInputs {
-  consumerKey: string;
+  consumerToken: string;
   consumerSecret: string;
   userToken: string;
   userSecret: string;
 }
 
 export enum CredentialKeeperStatus {
-  waitingCredentials,
-  requirePin,
-  ready,
+  WaitingCredentials,
+  RequirePin,
+  Ready,
 }
 
 export type StatusChangeCallback = (newStatus: CredentialKeeperStatus) => void;

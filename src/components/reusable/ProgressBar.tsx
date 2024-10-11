@@ -1,5 +1,5 @@
 type ProgressBarProps = {
-  progress: number; // Valeur de progression en pourcentage
+  progress: number;
 };
 
 const ProgressBar = ({ progress }: ProgressBarProps) => {

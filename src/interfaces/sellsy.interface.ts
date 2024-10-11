@@ -1,3 +1,5 @@
+import { CreditNoteStep, DeliveryStep, DraftStep, InvoiceStep, OrderStep } from "./enum";
+
 export interface DocumentResult {
   status: string;
   response: {
@@ -17,3 +19,5 @@ export interface DocumentsOutput {
   documents: any;
   status: string;
 }
+
+export type DocumentSteps = InvoiceStep[] | CreditNoteStep[] | OrderStep[] | DeliveryStep[] | DraftStep[];

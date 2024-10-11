@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import SellsyClient from "../../services/SellsyClient";
 import ExportRecap from "./ExportRecap";
 import { PeriodDates } from "../../interfaces/sellsy.interface";
+import { DocumentType } from "../../interfaces/enum";
 
 type Props = {
   credentialKeeper: CredentialKeeper;
@@ -15,8 +16,8 @@ type Props = {
 export const ExportPage = ({ credentialKeeper, sellsyClient}: Props) => {
   const [exportInformations, setExportInformations] =
     useState<ExportInformations>();
-  const [docTypePeriodDates, setDocTypePeriodDates] = useState<{
-    [key: string]: PeriodDates;
+  const [documentTypePeriodDates, setDocTypePeriodDates] = useState<{
+    [key in DocumentType]: PeriodDates;
   }>();
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export const ExportPage = ({ credentialKeeper, sellsyClient}: Props) => {
 
   return (
     <main className="mx-auto p-4 flex justify-center items-start select-none space-x-4">
-      {docTypePeriodDates ? (
+      {documentTypePeriodDates ? (
         <>
           <ExportArchives
             exportInformations={exportInformations}
@@ -45,7 +46,7 @@ export const ExportPage = ({ credentialKeeper, sellsyClient}: Props) => {
             <ExportForm
               setExportInputs={setExportInformations}
               sellsyClient={sellsyClient}
-              docTypePeriodDates={docTypePeriodDates}
+              documentTypePeriodDates={documentTypePeriodDates}
             />
           )}
           <div className="w-1/5"></div>

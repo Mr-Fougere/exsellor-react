@@ -3,7 +3,7 @@ import { ExportInformations } from "../../interfaces/export.interface";
 import SellsyClient from "../../services/SellsyClient";
 import CSVGenerator from "../../services/CSVGenerator";
 import { updateTabInformation } from "../../libs/Helpers";
-import { DocType } from "../../interfaces/enum";
+import { DocumentType } from "../../interfaces/enum";
 import { InformationBanner } from "../reusable/InformationBanner";
 import { RecapInformation } from "../reusable/RecapInformation";
 import ProgressBar from "../reusable/ProgressBar";
@@ -33,9 +33,9 @@ const ExportRecap = ({
     clearInterval(intervalRef.current!);
   };
 
-  const docType = () => {
-    const entry = Object.entries(DocType).find(
-      ([key]) => key === exportInformations.docType
+  const documentType = () => {
+    const entry = Object.entries(DocumentType).find(
+      ([key]) => key === exportInformations.documentType
     );
     return entry ? entry[1] : "";
   };
@@ -90,7 +90,7 @@ const ExportRecap = ({
         <i className="fa-solid fa-thumbs-up ml-2"></i>
       </InformationBanner>
 
-      <RecapInformation title="Type de document" value={docType()} />
+      <RecapInformation title="Type de document" value={documentType()} />
       <RecapInformation
         title="Date de début"
         value={formatDispayedDate(

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "./components/reusable/Header";
 import CredentialKeeper from "./services/CredentialKeeper";
 import { CredentialKeeperStatus } from "./interfaces/credential.interface";
@@ -15,10 +15,10 @@ function App() {
 
   const switchCurrentPage = () => {
     switch (status) {
-      case CredentialKeeperStatus.ready:
+      case CredentialKeeperStatus.Ready:
         setCurrentPage(<ExportPage credentialKeeper={credentialKeeper} sellsyClient={sellsyClient} />);
         break;
-      case CredentialKeeperStatus.requirePin:
+      case CredentialKeeperStatus.RequirePin:
         setCurrentPage(<PinForm credentialKeeper={credentialKeeper} />);
         break;
       default:
